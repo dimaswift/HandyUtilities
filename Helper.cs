@@ -5,6 +5,73 @@ using UnityEngine.SceneManagement;
 
 namespace HandyUtilities
 {
+    [System.Serializable]
+    public sealed class Grid
+    {
+        public Grid(int columns, int rows, float size, Vector2 origin)
+        {
+            columns = Mathf.Clamp(columns, 3, 512);
+            rows = Mathf.Clamp(rows, 3, 512);
+            _size = size;
+            _rows = new float[rows];
+            _columns = new float[columns];
+            for (int i = 0; i < _rows.Length; i++)
+            {
+                _rows[i] = origin.y + i * size;
+            }
+            for (int i = 0; i < _columns.Length; i++)
+            {
+                _columns[i] = origin.x + i * size;
+            }
+        }
+        [SerializeField]
+        float[] _rows = new float[16];
+
+        [SerializeField]
+        float[] _columns = new float[16];
+
+        [SerializeField]
+        float _size = 1f;
+
+        public float Size { get { return _size; } }
+
+        public float ColumnCount { get { return _columns.Length * _size; } }
+
+        public float RowCount { get { return _rows.Length * _size; } }
+
+        public float GetRow(int i)
+        {
+            if (i < _rows.Length)
+                return _rows[i];
+            else return 0;
+        }
+
+        public float GetColumn(int i)
+        {
+            if (i < _columns.Length)
+                return _columns[i];
+            else return 0;
+        }
+
+        public float GetClosetRow(float row)
+        {
+            System.Array.Sort(_rows, (p1, p2) => Mathf.Abs(row - p1).CompareTo(Mathf.Abs(row - p2)));
+            return _rows[0];
+        }
+
+        public float GetClosetColumn(float col)
+        {
+            System.Array.Sort(_columns, (p1, p2) => Mathf.Abs(col - p1).CompareTo(Mathf.Abs(col - p2)));
+            return _columns[0];
+        }
+        public Vector2 GetPoint(Vector2 point)
+        {
+            System.Array.Sort(_rows, (g1, g2) => Mathf.Abs(g1 - point.x).CompareTo(Mathf.Abs(g2 - point.x)));
+            System.Array.Sort(_columns, (g1, g2) => Mathf.Abs(g1 - point.y).CompareTo(Mathf.Abs(g2 - point.y)));
+            return new Vector2(_rows[0], _columns[0]);
+        }
+    }
+
     public sealed class Timer
     {
         float _rate;

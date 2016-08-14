@@ -139,6 +139,7 @@ namespace HandyUtilities
             if (!imp.isReadable)
             {
                 imp.isReadable = true;
+                imp.textureFormat = TextureImporterFormat.ARGB32;
                 imp.textureType = TextureImporterType.Advanced;
                 imp.SaveAndReimport();
             }
