@@ -239,15 +239,19 @@ namespace HandyUtilities
 
         static Camera m_mainCam;
         static Collider2D[] m_collidersArray = new Collider2D[10];
+        static Transform m_mainCamTransform;
+        static RaycastHit[] m_raycastCache = new RaycastHit[10];
+        static Plane plane = new Plane(Vector3.forward, Vector3.zero);
 
         #endregion
 
         #region Initilization
 
-        [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.BeforeSceneLoad)]
+        [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.AfterSceneLoad)]
         static void Init()
         {
             m_mainCam = Camera.main;
+            m_mainCamTransform = m_mainCam.transform;
         }
 
         #endregion Initilization
@@ -565,6 +569,117 @@ namespace HandyUtilities
             count = Physics2D.OverlapCircleNonAlloc(position, radius, m_collidersArray, 1 << layer);
             return m_collidersArray;
         }
+
+
+        public static RaycastHit[] raycastCache { get { return m_raycastCache; } }
+
+        public static Vector3 mainCameraDirection { get { return m_mainCamTransform.TransformDirection(Vector3.forward); } }
+
+        public static Vector3 viewport
+        {
+            get { return mainCamera.ScreenToViewportPoint(Input.mousePosition); }
+        }
+
+        public static Camera mainCamera
+        {
+            get
+            {
+                if (m_mainCam == null)
+                {
+                    m_mainCam = Camera.main;
+                    if (m_mainCam == null)
+                        m_mainCam = Object.FindObjectOfType<Camera>();
+                }
+                return m_mainCam;
+            }
+        }
+
+        public static int isometricMouseRaycast(int mask)
+        {
+            return Physics.RaycastNonAlloc(mousePosition, mainCameraDirection, m_raycastCache, mask);
+        }
+
+        public static RaycastHit Raycast(Ray ray)
+        {
+            int hits = Physics.RaycastNonAlloc(ray, m_raycastCache);
+            RaycastHit hit = new RaycastHit() { distance = float.PositiveInfinity };
+            for (int i = 0; i < hits; i++)
+            {
+                if (hit.distance > raycastCache[i].distance)
+                    hit = raycastCache[i];
+            }
+            return hit;
+        }
+
+        public static RaycastHit RaycastFromScreenCenter()
+        {
+            return Raycast(GetCenterScreenRay());
+        }
+
+        public static RaycastHit RaycastMouse()
+        {
+            int hits = Physics.RaycastNonAlloc(m_mainCam.ScreenPointToRay(Input.mousePosition), m_raycastCache);
+            RaycastHit hit = new RaycastHit() { distance = float.PositiveInfinity };
+            for (int i = 0; i < hits; i++)
+            {
+                if (hit.distance > raycastCache[i].distance)
+                    hit = raycastCache[i];
+            }
+            return hit;
+        }
+
+        public static bool IsTouchPhase(TouchPhase phase)
+        {
+            for (int i = 0; i < Input.touchCount; i++)
+            {
+                if (Input.GetTouch(i).phase == phase)
+                {
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        public static int RaycastAll(Ray ray)
+        {
+            return Physics.RaycastNonAlloc(ray, m_raycastCache);
+        }
+
+        public static Ray ProjectIsometricRay()
+        {
+            float d = 0f;
+            var ray = mainCamera.ScreenPointToRay(Input.mousePosition);
+            plane.Raycast(ray, out d);
+            return ray;
+        }
+
+        public static Ray GetCenterScreenRay()
+        {
+            return mainCamera.ScreenPointToRay(new Vector2(Screen.width * .5f, Screen.height * .5f));
+        }
+
+        public static Ray ProjectFPSRay()
+        {
+            return GetCenterScreenRay();
+        }
+
+        public static Vector3 ProjectIsometricRay(Ray ray, float height = 0f)
+        {
+            float d = 0f;
+            plane.Raycast(ray, out d);
+            return ray.GetPoint(d - height);
+        }
+
+        public static int IsometricMouseRaycast()
+        {
+            return Physics.RaycastNonAlloc(mousePosition, mainCameraDirection, m_raycastCache);
+        }
+
+        public static Vector3 mousePosition
+        {
+            get { return mainCamera.ScreenToWorldPoint(Input.mousePosition); }
+        }
+
 
         #endregion
 

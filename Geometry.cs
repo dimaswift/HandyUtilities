@@ -840,35 +840,25 @@ namespace HandyUtilities
             return new Vector3(y, x);
         }
 
-        private static float DotProduct(Vector2 pointA, Vector2 pointB, Vector2 pointC)
+        public static float DotProduct(Vector2 pointA, Vector2 pointB, Vector2 pointC)
         {
-            float[] AB = new float[2];
-            float[] BC = new float[2];
-            AB[0] = pointB[0] - pointA[0];
-            AB[1] = pointB[1] - pointA[1];
-            BC[0] = pointC[0] - pointB[0];
-            BC[1] = pointC[1] - pointB[1];
-            float dot = AB[0] * BC[0] + AB[1] * BC[1];
+            float AB_0 = 0;
+            float AB_1 = 0;
+            float BC_0 = 0;
+            float BC_1 = 0;
+
+            AB_0 = pointB[0] - pointA[0];
+            AB_1 = pointB[1] - pointA[1];
+            BC_0 = pointC[0] - pointB[0];
+            BC_1 = pointC[1] - pointB[1];
+            float dot = AB_0 * BC_0 + AB_1 * BC_1;
 
             return dot;
         }
 
-        static float CrossProduct(Vector2 pointA, Vector2 pointB, Vector2 pointC)
+        public static float LineToPointDistance(Vector2 pointA, Vector2 pointB, Vector2 pointC, bool isSegment)
         {
-            float[] AB = new float[2];
-            float[] AC = new float[2];
-            AB[0] = pointB[0] - pointA[0];
-            AB[1] = pointB[1] - pointA[1];
-            AC[0] = pointC[0] - pointA[0];
-            AC[1] = pointC[1] - pointA[1];
-            float cross = AB[0] * AC[1] - AB[1] * AC[0];
-
-            return cross;
-        }
-
-        public static float LineToPointDistance2D(Vector2 pointA, Vector2 pointB, Vector2 pointC, bool isSegment)
-        {
-            float dist = CrossProduct(pointA, pointB, pointC) / Vector2.Distance(pointA, pointB);
+            float dist = Cross(pointA, pointB, pointC) / Vector2.Distance(pointA, pointB);
             if (isSegment)
             {
                 float dot1 = DotProduct(pointA, pointB, pointC);
@@ -884,7 +874,7 @@ namespace HandyUtilities
 
         public static float Hypotenuse(float a, float b)
         {
-            return (float) Mathf.Sqrt(Mathf.Pow(a, 2) + Mathf.Pow(b, 2));
+            return Mathf.Sqrt(Mathf.Pow(a, 2) + Mathf.Pow(b, 2));
         }
 
         public static bool IsConvex(Vector2[] polygon)
@@ -927,12 +917,7 @@ namespace HandyUtilities
             return (BAx * BCy - BAy * BCx);
         }
 
-        public static float Cross3(Vector3 a, Vector3 b, Vector3 c)
-        {
-            return ((b.x - a.x) * (c.y - a.y) - (b.y - a.y) * (c.x - a.x));
-        }
-
-        public static float Cross2(Vector2 a, Vector2 b, Vector2 c)
+        public static float Cross(Vector2 a, Vector2 b, Vector2 c)
         {
             return ((b.x - a.x) * (c.y - a.y) - (b.y - a.y) * (c.x - a.x));
         }

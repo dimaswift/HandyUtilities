@@ -30,8 +30,9 @@ public class PrimitiveMeshCreator
         mesh.vertices = original.vertices;
         mesh.triangles = original.triangles;
         mesh.uv = original.uv;
+        mesh.normals = original.normals;
+        mesh.tangents = original.tangents;
         mesh.RecalculateBounds();
-        mesh.RecalculateNormals();
         return mesh;
     }
 
@@ -46,8 +47,9 @@ public class PrimitiveMeshCreator
         mesh.vertices = vertices;
         mesh.triangles = original.triangles;
         mesh.uv = original.uv;
+        mesh.normals = original.normals;
+        mesh.tangents = original.tangents;
         mesh.RecalculateBounds();
-        mesh.RecalculateNormals();
         return mesh;
     }
 

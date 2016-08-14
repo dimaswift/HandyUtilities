@@ -847,7 +847,7 @@ namespace HandyUtilities
         public static void AddTorqueTowards(this Rigidbody2D body, Transform t, float angle, float gainConstant)
         {
             var z = t.eulerAngles.z;
-            angle = Mathf.LerpAngle(t.eulerAngles.z, angle, 360f);
+            angle = Mathf.LerpAngle(z, angle, 360f);
             body.AddTorque((z - angle) * -gainConstant - body.angularVelocity);
         }
         public static void AddNormalizedTorque(this Rigidbody2D body, float angle, float gainConstant)
