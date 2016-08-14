@@ -159,9 +159,11 @@ namespace HandyUtilities
                 field.SetValue(null, value);
             }
         }
+
         [MenuItem("CONTEXT/Component/Move on Top")]
-        public static void MoveComponentOnTop(Component component)
+        public static void MoveComponentOnTop(MenuCommand command)
         {
+            var component = command.context as Component;
             var components = component.GetComponents<Component>();
             while (components[1] != component)
             {
