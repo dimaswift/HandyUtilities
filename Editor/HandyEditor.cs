@@ -25,6 +25,18 @@ namespace HandyUtilities
             }
         }
 
+        [MenuItem("CONTEXT/Component/Move on Top")]
+        public static void MoveComponentOnTop(MenuCommand command)
+        {
+            var component = command.context as Component;
+            var components = component.GetComponents<Component>();
+            while (components[1] != component)
+            {
+                UnityEditorInternal.ComponentUtility.MoveComponentUp(component);
+                components = component.GetComponents<Component>();
+            }
+        }
+
         [MenuItem("HandyUtilities/Apply Selected Prefabs")]
         public static void SaveSelectedPrefabs(MenuCommand command)
         {
@@ -158,18 +170,6 @@ namespace HandyUtilities
                 Type type = typeof(Tools);
                 FieldInfo field = type.GetField("s_Hidden", BindingFlags.NonPublic | BindingFlags.Static);
                 field.SetValue(null, value);
-            }
-        }
-
-        [MenuItem("CONTEXT/Component/Move on Top")]
-        public static void MoveComponentOnTop(MenuCommand command)
-        {
-            var component = command.context as Component;
-            var components = component.GetComponents<Component>();
-            while (components[1] != component)
-            {
-                UnityEditorInternal.ComponentUtility.MoveComponentUp(component);
-                components = component.GetComponents<Component>();
             }
         }
 
