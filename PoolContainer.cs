@@ -2,20 +2,29 @@
 
 namespace HandyUtilities.PoolSystem
 {
-    public abstract class PoolContainer : ScriptableObject
+    public abstract class PoolContainer<T> : SOContainer where T : PooledObject<T>
     {
-        public int size = 10;
-        public abstract void Init();
-        public abstract void Reset();
+        [SerializeField]
+        protected T m_prefab;
+        [SerializeField]
+        protected int m_size = 10;
+
+        public override void Init()
+        {
+            m_pool = new Pool<T>(m_prefab, m_size);
+        }
+
+        protected Pool<T> m_pool;
+
+        public Pool<T> pool { get { return m_pool; } }
 
 #if UNITY_EDITOR
 
-        public static T CreateScriptableObjectAsset<T>(string name) where T : ScriptableObject
+        public static SO CreateScriptableObjectAsset<SO>(string name) where SO : ScriptableObject
         {
             var path = UnityEditor.EditorUtility.SaveFilePanelInProject("Save Instance", name, "asset", "Choose Folder", Application.dataPath);
-            var ins = CreateInstance<T>();
-            UnityEditor.AssetDatabase.CreateAsset(CreateInstance<T>(), path);
-            return UnityEditor.AssetDatabase.LoadAssetAtPath<T>(path);
+            UnityEditor.AssetDatabase.CreateAsset(CreateInstance<SO>(), path);
+            return UnityEditor.AssetDatabase.LoadAssetAtPath<SO>(path);
         }
 
         /**********************************************************************************

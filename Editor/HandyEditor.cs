@@ -85,7 +85,6 @@ namespace HandyUtilities
         public static T CreateScriptableObjectAsset<T>(string name) where T : ScriptableObject
         {
             var path = "Assets/" + name + ".asset";
-            var ins = ScriptableObject.CreateInstance<T>();
             AssetDatabase.CreateAsset(ScriptableObject.CreateInstance<T>(), path);
             return AssetDatabase.LoadAssetAtPath<T>(path);
         }

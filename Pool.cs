@@ -202,41 +202,43 @@ namespace HandyUtilities.PoolSystem
         }
     }
 
-    public sealed class Pool<T> : Pool where T : Component
+    public sealed class Pool<T> : Pool where T : PooledObject<T>
     {
 
-        IPoolable<T>[] m_objects;
+        PooledObject<T>[] m_objects;
 
-        public IPoolable<T>[] objects { get { return m_objects; } }
+        public PooledObject<T>[] objects { get { return m_objects; } }
 
         public Pool(T source, int size)
         {
             var container = new GameObject(source.name + "_pool").transform;
-            m_objects = new IPoolable<T>[size];
+            m_objects = new PooledObject<T>[size];
             m_size = size;
             for (var i = 0; i < size; i++)
             {
                 var obj = Object.Instantiate(source.gameObject);
                 obj.transform.SetParent(container);
-                m_objects[i] = obj.GetComponent<IPoolable<T>>();
-                m_objects[i].Init();
-                obj.gameObject.SetActive(false);
+                var ip = obj.GetComponent<PooledObject<T>>();
+                m_objects[i] = ip;
+                ip.Init();
+                ip.SetActive(false);
             }
         }
 
         public Pool(T[] source, int size)
         {
             var container = new GameObject(source[0].name + "_pool").transform;
-            m_objects = new IPoolable<T>[size];
+            m_objects = new PooledObject<T>[size];
             m_size = size;
             int index = 0;
             for (var i = 0; i < size; i++)
             {
                 var obj = Object.Instantiate(source[index].gameObject);
                 obj.transform.SetParent(container);
-                m_objects[i] = obj.GetComponent<IPoolable<T>>();
-                m_objects[i].Init();
-                obj.gameObject.SetActive(false);
+                var ip = obj.GetComponent<PooledObject<T>>();
+                m_objects[i] = ip;
+                ip.Init();
+                ip.SetActive(false);
                 index++;
                 if (index >= source.Length)
                     index = 0;
@@ -278,7 +280,7 @@ namespace HandyUtilities.PoolSystem
             m_order = 0;
         }
 
-        public IPoolable<T> PickSafe()
+        public PooledObject<T> PickSafe()
         {
             var obj = NextItemToPick();
             SkipNext();
@@ -298,7 +300,7 @@ namespace HandyUtilities.PoolSystem
             return obj;
         }
 
-        public IPoolable<T> Pick()
+        public PooledObject<T> Pick()
         {
             var obj = NextItemToPick();
             SkipNext();
@@ -306,7 +308,7 @@ namespace HandyUtilities.PoolSystem
             return obj;
         }
 
-        public IPoolable<T> NextItemToPick()
+        public PooledObject<T> NextItemToPick()
         {
             return m_objects[m_order];
         }
@@ -320,7 +322,7 @@ namespace HandyUtilities.PoolSystem
             }
         }
 
-        public IPoolable<T> NextReadyItemToPick()
+        public PooledObject<T> NextReadyItemToPick()
         {
             var obj = NextItemToPick();
             var c = 0;
@@ -347,6 +349,8 @@ namespace HandyUtilities.PoolSystem
 
         bool isVisible { get; }
 
+        bool isActive { get; }
+
         void Init();
 
         void Pick();
@@ -356,6 +360,8 @@ namespace HandyUtilities.PoolSystem
         bool IsReadyToPick();
 
         void ResetObject();
+
+        void SetActive(bool active);
     }
 
 

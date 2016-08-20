@@ -247,7 +247,6 @@ namespace HandyUtilities
         static Collider2D[] m_collidersArray = new Collider2D[10];
         static Transform m_mainCamTransform;
         static RaycastHit[] m_raycastCache = new RaycastHit[10];
-        static RaycastHit2D[] m_raycast2DCache = new RaycastHit2D[10];
         static Plane plane = new Plane(Vector3.forward, Vector3.zero);
 
         #endregion
