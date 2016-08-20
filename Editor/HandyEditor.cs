@@ -2,7 +2,6 @@
 using UnityEditor;
 using System.Collections.Generic;
 using System.Linq;
-using System;
 using System.Reflection;
 
 namespace HandyUtilities
@@ -60,7 +59,7 @@ namespace HandyUtilities
 
         }
 
-        public static void MethodsPopup(string label, UnityEngine.Object target, Type classType, string propertyName, BindingFlags flags)
+        public static void MethodsPopup(string label, UnityEngine.Object target, System.Type classType, string propertyName, BindingFlags flags)
         {
             var so = new SerializedObject(target);
             var methods = classType.GetMethods(flags);
@@ -72,7 +71,7 @@ namespace HandyUtilities
                 methodNames[i + 1] = methods[i].Name;
             }
             var prop = so.FindProperty(propertyName);
-            int index = Array.FindIndex(methodNames, (s) => s == prop.stringValue);
+            int index = System.Array.FindIndex(methodNames, (s) => s == prop.stringValue);
             if (index < 0)
                 index = 0;
             prop.stringValue = methodNames[EditorGUILayout.Popup(label, index, methodNames)];
@@ -83,7 +82,15 @@ namespace HandyUtilities
             }
         }
 
-        public static void FieldsPopup(string label, UnityEngine.Object target, Type classType, string propertyName, BindingFlags flags)
+        public static T CreateScriptableObjectAsset<T>(string name) where T : ScriptableObject
+        {
+            var path = "Assets/" + name + ".asset";
+            var ins = ScriptableObject.CreateInstance<T>();
+            AssetDatabase.CreateAsset(ScriptableObject.CreateInstance<T>(), path);
+            return AssetDatabase.LoadAssetAtPath<T>(path);
+        }
+
+        public static void FieldsPopup(string label, UnityEngine.Object target, System.Type classType, string propertyName, BindingFlags flags)
         {
             var so = new SerializedObject(target);
             var fields = classType.GetFields(flags);
@@ -95,7 +102,7 @@ namespace HandyUtilities
                 fieldsNames[i + 1] = fields[i].Name;
             }
             var prop = so.FindProperty(propertyName);
-            int index = Array.FindIndex(fieldsNames, (s) => s == prop.stringValue);
+            int index = System.Array.FindIndex(fieldsNames, (s) => s == prop.stringValue);
             if (index < 0)
                 index = 0;
             prop.stringValue = fieldsNames[EditorGUILayout.Popup(label, index, fieldsNames)];
@@ -106,7 +113,7 @@ namespace HandyUtilities
             }
         }
 
-        public static void FieldsPopup(string label, SerializedProperty target, Rect pos, Type classType, string propertyName)
+        public static void FieldsPopup(string label, SerializedProperty target, Rect pos, System.Type classType, string propertyName)
         {
             var fields = classType.GetFields();
 
@@ -117,7 +124,7 @@ namespace HandyUtilities
                 fieldsNames[i + 1] = fields[i].Name;
             }
             var prop = target.FindPropertyRelative(propertyName);
-            int index = Array.FindIndex(fieldsNames, (s) => s == prop.stringValue);
+            int index = System.Array.FindIndex(fieldsNames, (s) => s == prop.stringValue);
             if (index < 0)
                 index = 0;
             prop.stringValue = fieldsNames[EditorGUI.Popup(pos, label, index, fieldsNames)];
@@ -161,13 +168,13 @@ namespace HandyUtilities
         {
             get
             {
-                Type type = typeof(Tools);
+                System.Type type = typeof(Tools);
                 FieldInfo field = type.GetField("s_Hidden", BindingFlags.NonPublic | BindingFlags.Static);
                 return ((bool) field.GetValue(null));
             }
             set
             {
-                Type type = typeof(Tools);
+                System.Type type = typeof(Tools);
                 FieldInfo field = type.GetField("s_Hidden", BindingFlags.NonPublic | BindingFlags.Static);
                 field.SetValue(null, value);
             }
@@ -217,7 +224,7 @@ namespace HandyUtilities
             }
         }
 
-        public static Type[] GetAllDerivedTypes(System.AppDomain aAppDomain, System.Type aType)
+        public static System.Type[] GetAllDerivedTypes(System.AppDomain aAppDomain, System.Type aType)
         {
             var result = new List<System.Type>();
             var assemblies = aAppDomain.GetAssemblies();
