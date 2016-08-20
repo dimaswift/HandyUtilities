@@ -122,6 +122,11 @@ namespace HandyUtilities
             this._loop = loop;
         }
 
+        public void SetReady()
+        {
+            _t = _rate;
+        }
+
         public bool Wait()
         {
             if (_expired && !_loop) return false;
@@ -134,6 +139,7 @@ namespace HandyUtilities
             }
             return false;
         }
+
     }
 
     public sealed class FPSMeter
