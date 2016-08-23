@@ -3,14 +3,9 @@ using System.Collections;
 
 namespace HandyUtilities
 {
-    public abstract class EditorSettings<T> : ScriptableObject where T : ScriptableObject
+    public abstract class SerializedSingleton<T> : ScriptableObject where T : ScriptableObject
     {
         static T _instance;
-
-        public static void SetIntance(T ins)
-        {
-            _instance = ins;
-        }
 
         public static T Instance
         {
