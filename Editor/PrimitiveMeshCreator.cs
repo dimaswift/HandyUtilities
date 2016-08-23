@@ -24,6 +24,31 @@ public class PrimitiveMeshCreator
         AssetDatabase.CreateAsset(mesh, HandyUtilities.Helper.ConvertLoRelativePath(path));
     }
 
+    [MenuItem("CONTEXT/MeshFilter/Copy And Replace Scaled Mesh")]
+    public static void CopyAndReplaceScaledMesh(MenuCommand command)
+    {
+        var mf = command.context as MeshFilter;
+        Undo.RecordObject(mf.gameObject, "Mesh swap");
+        var mesh = CopyMesh(mf.sharedMesh, mf.transform.localScale, mf.transform.parent != null ? mf.transform.localPosition : Vector3.zero);
+        var path = EditorUtility.SaveFilePanel("Save Mesh", "Assets", "cube", "asset");
+     
+        if(mf.transform.parent)
+        {
+            mf.transform.localPosition = Vector3.zero;
+        }
+        var box = mf.GetComponent<BoxCollider>();
+        if(box)
+        {
+            box.center = mesh.bounds.center;
+            box.size = mesh.bounds.size;
+        }
+        mf.transform.localScale = Vector3.one;
+        mf.sharedMesh = mesh;
+        EditorUtility.SetDirty(mf.gameObject);  
+        AssetDatabase.CreateAsset(mesh, HandyUtilities.Helper.ConvertLoRelativePath(path));
+    }
+
+
     static Mesh CopyMesh(Mesh original)
     {
         var mesh = new Mesh();
