@@ -11,6 +11,32 @@ namespace HandyUtilities
     {
         public static Tool lastTool { get; private set; }
 
+        public static RandomIntRange DrawRandomRange(Rect rect, RandomIntRange range, string label)
+        {
+            GUI.Label(rect, label);
+            var r = rect;
+            r.width = rect.width * .125f;
+            r.x = rect.x + rect.width * .5f;
+            GUI.Label(new Rect(r.x, r.y, r.width, r.height), "min:");
+            range.min = EditorGUI.IntField(new Rect(r.x + r.width, r.y, r.width, r.height), range.min);
+            GUI.Label(new Rect(r.x + r.width * 2, r.y, r.width, r.height), "max:");
+            range.max = EditorGUI.IntField(new Rect(r.x + r.width * 3f, r.y, r.width, r.height), range.max);
+            return range;
+        }
+
+        public static RandomFloatRange DrawRandomRange(Rect rect, RandomFloatRange range, string label)
+        {
+            GUI.Label(rect, label);
+            var r = rect;
+            r.width = rect.width * .125f;
+            r.x = rect.x + rect.width * .5f;
+            GUI.Label(new Rect(r.x, r.y, r.width, r.height), "min:");
+            range.min = EditorGUI.FloatField(new Rect(r.x + r.width, r.y, r.width, r.height), range.min);
+            GUI.Label(new Rect(r.x + r.width * 2, r.y, r.width, r.height), "max:");
+            range.max = EditorGUI.FloatField(new Rect(r.x + r.width * 3f, r.y, r.width, r.height), range.max);
+            return range;
+        }
+
         public static Vector3 mousePosition
         {
             get

@@ -166,13 +166,19 @@ namespace HandyUtilities
     }
 
     [System.Serializable]
-    public sealed class RandomFloatRange
+    public struct RandomFloatRange
     {
         [SerializeField]
-        float m_min = 0, m_max = 10;
+        float m_min, m_max;
 
         public float min { get { return m_min; } set { m_min = value; } }
         public float max { get { return m_max; } set { m_max = value; } }
+
+        public RandomFloatRange(float min, float max)
+        {
+            m_min = min;
+            m_max = max;
+        }
 
         public float Get()
         {
@@ -196,13 +202,19 @@ namespace HandyUtilities
     }
 
     [System.Serializable]
-    public sealed class RandomIntRange
+    public struct RandomIntRange
     {
         [SerializeField]
-        int m_min = 0, m_max = 10;
+        int m_min, m_max;
 
         public int min { get { return m_min; } set { m_min = value; } }
         public int max { get { return m_max; } set { m_max = value; } }
+
+        public RandomIntRange(int min, int max)
+        {
+            m_min = min;
+            m_max = max;
+        }
 
         public int Get()
         {
@@ -383,6 +395,8 @@ namespace HandyUtilities
             target.x = target.x - origin.x;
             target.y = target.y - origin.y;
             var result = Mathf.Atan2(target.y, target.x) * Mathf.Rad2Deg;
+            if (float.IsNaN(result))
+                return 0;
             return normalize ? To180Angle(result) : result;
         }
 
