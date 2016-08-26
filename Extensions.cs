@@ -20,6 +20,17 @@ namespace HandyUtilities
             pos.z = z;
             trans.localPosition = pos;
         }
+
+        public static void RotateAroundPivot(this Transform transform, Vector3 pivot, Vector3 angles)
+        {
+            var point = transform.position;
+            Vector3 dir = point - pivot;
+            dir = Quaternion.Euler(angles) * dir;
+            point = dir + pivot;
+            transform.localPosition = point;
+            transform.LookAt(pivot, Vector3.up);
+        }
+
         public static Transform[] GetChildren(this Transform t)
         {
             var children = new Transform[t.childCount];

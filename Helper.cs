@@ -249,6 +249,7 @@ namespace HandyUtilities
         #region Properties
 
         public static bool isMouseWheelScrolling { get { return Input.GetAxis("Mouse ScrollWheel") != 0; } }
+        public static float mouseWheelDelta { get { return Input.GetAxis("Mouse ScrollWheel"); } }
         public static bool isPointerOverGUI { get { return EventSystem.current.IsPointerOverGameObject(); } }
 
         #endregion
