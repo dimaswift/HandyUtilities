@@ -5,6 +5,15 @@ namespace HandyUtilities
 {
     public static class Geometry
     {
+
+        public static Vector3 RotatePointAroundPivot(Vector3 point, Vector3 pivot, Vector3 angles)
+        {
+            Vector3 dir = point - pivot;
+            dir = Quaternion.Euler(angles) * dir;
+            point = dir + pivot;
+            return point;
+        }
+
         public static Vector2 RandomLinearDirection()
         {
             switch (Random.Range(0, 4))
