@@ -122,6 +122,11 @@ namespace HandyUtilities
             this._loop = loop;
         }
 
+        public void SetReady()
+        {
+            _t = _rate;
+        }
+
         public bool Wait()
         {
             if (_expired && !_loop) return false;
@@ -134,6 +139,7 @@ namespace HandyUtilities
             }
             return false;
         }
+
     }
 
     public sealed class FPSMeter
@@ -166,13 +172,19 @@ namespace HandyUtilities
     }
 
     [System.Serializable]
-    public sealed class RandomFloatRange
+    public struct RandomFloatRange
     {
         [SerializeField]
-        float m_min = 0, m_max = 10;
+        float m_min, m_max;
 
         public float min { get { return m_min; } set { m_min = value; } }
         public float max { get { return m_max; } set { m_max = value; } }
+
+        public RandomFloatRange(float min, float max)
+        {
+            m_min = min;
+            m_max = max;
+        }
 
         public float Get()
         {
@@ -196,13 +208,19 @@ namespace HandyUtilities
     }
 
     [System.Serializable]
-    public sealed class RandomIntRange
+    public struct RandomIntRange
     {
         [SerializeField]
-        int m_min = 0, m_max = 10;
+        int m_min, m_max;
 
         public int min { get { return m_min; } set { m_min = value; } }
         public int max { get { return m_max; } set { m_max = value; } }
+
+        public RandomIntRange(int min, int max)
+        {
+            m_min = min;
+            m_max = max;
+        }
 
         public int Get()
         {
@@ -241,7 +259,6 @@ namespace HandyUtilities
         static Collider2D[] m_collidersArray = new Collider2D[10];
         static Transform m_mainCamTransform;
         static RaycastHit[] m_raycastCache = new RaycastHit[10];
-        static RaycastHit2D[] m_raycast2DCache = new RaycastHit2D[10];
         static Plane plane = new Plane(Vector3.forward, Vector3.zero);
 
         #endregion
@@ -384,6 +401,8 @@ namespace HandyUtilities
             target.x = target.x - origin.x;
             target.y = target.y - origin.y;
             var result = Mathf.Atan2(target.y, target.x) * Mathf.Rad2Deg;
+            if (float.IsNaN(result))
+                return 0;
             return normalize ? To180Angle(result) : result;
         }
 

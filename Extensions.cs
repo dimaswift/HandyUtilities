@@ -233,6 +233,12 @@ namespace HandyUtilities
             e.z = euler;
             t.eulerAngles = e;
         }
+        public static void ResetAll(this Transform t)
+        {
+            t.localPosition = Vector3.zero;
+            t.localEulerAngles = Vector3.zero;
+            t.localScale = Vector3.one;
+        }
         #endregion
 
         #region Hinge Joint2D
