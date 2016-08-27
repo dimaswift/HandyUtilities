@@ -185,6 +185,7 @@ namespace HandyUtilities
                 imp.isReadable = true;
                 imp.textureFormat = TextureImporterFormat.ARGB32;
                 imp.textureType = TextureImporterType.Advanced;
+                imp.mipmapEnabled = true;
                 imp.SaveAndReimport();
             }
         }

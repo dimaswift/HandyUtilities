@@ -8,22 +8,6 @@ namespace HandyUtilities
     [System.Serializable]
     public sealed class Grid
     {
-        public Grid(int columns, int rows, float size, Vector2 origin)
-        {
-            columns = Mathf.Clamp(columns, 3, 512);
-            rows = Mathf.Clamp(rows, 3, 512);
-            _size = size;
-            _rows = new float[rows];
-            _columns = new float[columns];
-            for (int i = 0; i < _rows.Length; i++)
-            {
-                _rows[i] = origin.y + i * size;
-            }
-            for (int i = 0; i < _columns.Length; i++)
-            {
-                _columns[i] = origin.x + i * size;
-            }
-        }
         [SerializeField]
         float[] _rows = new float[16];
 
@@ -33,11 +17,37 @@ namespace HandyUtilities
         [SerializeField]
         float _size = 1f;
 
-        public float Size { get { return _size; } }
+        public float size { get { return _size; } }
 
-        public float ColumnCount { get { return _columns.Length * _size; } }
+        public float columnCount { get { return _columns.Length * _size; } }
 
-        public float RowCount { get { return _rows.Length * _size; } }
+        public float rowCount { get { return _rows.Length * _size; } }
+
+        public Grid(int columns, int rows, float size, Vector2 origin)
+        {
+            _rows = new float[rows];
+            _columns = new float[columns];
+            Recalculate(columns, rows, size, origin);
+        }
+
+        public void Recalculate(int columns, int rows, float size, Vector2 origin)
+        {
+            columns = Mathf.Clamp(columns, 3, 512);
+            rows = Mathf.Clamp(rows, 3, 512);
+            _size = size;
+            if (columns != _columns.Length)
+                System.Array.Resize(ref _columns, columns);
+            if (rows != _columns.Length)
+                System.Array.Resize(ref _rows, rows);
+            for (int i = 0; i < _rows.Length; i++)
+            {
+                _rows[i] = origin.y + i * size;
+            }
+            for (int i = 0; i < _columns.Length; i++)
+            {
+                _columns[i] = origin.x + i * size;
+            }
+        }
 
         public float GetRow(int i)
         {
