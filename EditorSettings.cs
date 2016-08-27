@@ -5,7 +5,7 @@ namespace HandyUtilities
 {
     public abstract class SerializedSingleton<T> : ScriptableObject where T : ScriptableObject
     {
-        static T _instance;
+        protected static T _instance;
 
         public static T Instance
         {
