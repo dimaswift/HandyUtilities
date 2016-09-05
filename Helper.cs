@@ -37,7 +37,7 @@ namespace HandyUtilities
             _size = size;
             if (columns != _columns.Length)
                 System.Array.Resize(ref _columns, columns);
-            if (rows != _columns.Length)
+            if (rows != _rows.Length)
                 System.Array.Resize(ref _rows, rows);
             for (int i = 0; i < _rows.Length; i++)
             {
