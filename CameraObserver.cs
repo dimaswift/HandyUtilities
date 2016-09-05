@@ -15,20 +15,11 @@ namespace HandyUtilities
         float zoomSpeed = 500;
         [SerializeField]
         float dragSpeed = 500;
-        [SerializeField]
-        [Range(0f, 1f)]
-        float inertia = .5f;
+ 
         [Range(0f, 1f)]
         [SerializeField]
         float smoothTime = .5f;
-        [Range(0f, 1f)]
-        [SerializeField]
-        float targetLerpSmoothTime = .5f;
-        [SerializeField]
-        [Range(0, 2)]
-        int _mouseButton = 0;
-        [SerializeField]
-        bool placeTargetPointOnClick = false;
+
 
 
 
@@ -41,7 +32,7 @@ namespace HandyUtilities
         Vector3 _moveAxis;
         float _zDepth;
         Vector3 _lerpedTargetPos;
-        Vector3 _currentPivot;
+        Vector3 _currentPivot = Vector3.zero;
 
         void Start()
         {
