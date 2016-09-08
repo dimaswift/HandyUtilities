@@ -1,48 +1,50 @@
-﻿using UnityEngine;
-using System.Collections;
-
-public abstract class PooledObject<T> : MonoBehaviour
+﻿namespace HandyUtilities.PoolSystem
 {
-    Transform m_transform;
-    bool m_isActive = true;
+    using UnityEngine;
 
-    public abstract T Object { get; }
-
-    public Transform cachedTransform
+    public abstract class PooledObject<T> : MonoBehaviour
     {
-        get
+        Transform m_transform;
+
+        bool m_isActive = true;
+
+        public abstract T Object { get; }
+
+        public Transform cachedTransform
         {
-            return m_transform;
+            get
+            {
+                return m_transform;
+            }
         }
-    }
 
-    public abstract bool isVisible { get; }
+        public abstract bool isVisible { get; }
 
-    public bool isActive { get { return m_isActive; } }
+        public bool isActive { get { return m_isActive; } }
 
-    public virtual void Init()
-    {
-        m_transform = transform;
-    }
-
-    public abstract void Pick();
-
-    public void SetActive(bool active)
-    {
-        if (m_isActive != active)
+        public virtual void Init()
         {
-            gameObject.SetActive(active);
-            m_isActive = active;
+            m_transform = transform;
         }
+
+        public abstract void Pick();
+
+        public void SetActive(bool active)
+        {
+            if (m_isActive != active)
+            {
+                gameObject.SetActive(active);
+                m_isActive = active;
+            }
+        }
+
+        public void Return()
+        {
+
+        }
+
+        public abstract bool IsReadyToPick();
+
+        public abstract void ResetObject();
     }
-
-
-    public void Return()
-    {
-
-    }
-
-    public abstract bool IsReadyToPick();
-
-    public abstract void ResetObject();
 }

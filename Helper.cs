@@ -6,6 +6,68 @@ using UnityEngine.SceneManagement;
 namespace HandyUtilities
 {
     [System.Serializable]
+    public class CurvedAnimation
+    {
+        [SerializeField]
+        AnimationCurve m_curve = AnimationCurve.EaseInOut(0, 0, 1, 1);
+        [SerializeField]
+        float m_speed = 10f;
+        [SerializeField]
+        bool m_loop = false;
+
+        float m_time;
+        bool m_isAnimating, m_inited;
+        Keyframe m_lastFrame, m_firstFrame;
+
+        public bool isAnimating { get { return m_isAnimating; } }
+
+        public CurvedAnimation() { }
+
+        public CurvedAnimation(AnimationCurve curve, float speed, bool loop = false)
+        {
+            this.m_curve = curve;
+            this.m_speed = speed;
+            this.m_loop = loop;
+            Init();
+        }
+
+        void Init()
+        {
+            m_lastFrame = m_curve.keys.LastItem();
+            m_firstFrame = m_curve.keys[0];
+            m_inited = true;
+        }
+
+        public void Start()
+        {
+            m_isAnimating = true;
+            m_time = m_firstFrame.time;
+            if (!m_inited)
+                Init();
+        }
+
+        public float Evaluate(float delta)
+        {
+            if (!m_inited)
+                Init();
+            float v = 0f;
+            if (m_time <= m_lastFrame.time)
+            {
+                v = m_curve.Evaluate(m_time);
+                m_time += delta * m_speed;
+            }
+            else
+            {
+                if (m_loop)
+                    Start();
+                else m_isAnimating = false;
+                v = m_lastFrame.value;
+            }
+            return v;
+        }
+    }
+
+    [System.Serializable]
     public sealed class Grid
     {
         [SerializeField]

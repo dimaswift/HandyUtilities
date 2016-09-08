@@ -250,6 +250,14 @@ namespace HandyUtilities.PoolSystem
             foreach (var o in objects)
                 yield return o.Object;
         }
+    
+        public T this [int i]
+        {
+            get
+            {
+                return objects[i].Object;
+            }
+        }
 
         public IEnumerable<T> GetObjects(bool readyOnly)
         {
@@ -280,7 +288,7 @@ namespace HandyUtilities.PoolSystem
             m_order = 0;
         }
 
-        public PooledObject<T> PickSafe()
+        public T PickSafe()
         {
             var obj = NextItemToPick();
             SkipNext();
@@ -297,20 +305,21 @@ namespace HandyUtilities.PoolSystem
                 }
             }
             obj.Pick();
-            return obj;
+            return obj.Object;
         }
 
-        public PooledObject<T> Pick()
+
+        public T Pick()
         {
             var obj = NextItemToPick();
             SkipNext();
             obj.Pick();
-            return obj;
+            return obj.Object;
         }
 
-        public PooledObject<T> NextItemToPick()
+        public T NextItemToPick()
         {
-            return m_objects[m_order];
+            return m_objects[m_order].Object;
         }
 
         public void SkipNext()
@@ -322,7 +331,7 @@ namespace HandyUtilities.PoolSystem
             }
         }
 
-        public PooledObject<T> NextReadyItemToPick()
+        public T NextReadyItemToPick()
         {
             var obj = NextItemToPick();
             var c = 0;
