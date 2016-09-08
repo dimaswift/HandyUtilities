@@ -169,7 +169,6 @@ namespace HandyUtilities
             {
                 if (m_orthographic)
                 {
-                    Debug.Log(string.Format("{0}", name));
                     position.z = m_zPos;
                 }
 

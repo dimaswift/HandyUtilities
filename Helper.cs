@@ -214,35 +214,7 @@ namespace HandyUtilities
 
     }
 
-    public sealed class FPSMeter
-    {
-        float updateInterval = 0.5F;
-        float accum = 0;
-        int frames = 0;
-        float timeleft;
-        public float FPS { get; private set; }
-
-        public FPSMeter(float updateInterval = .5f)
-        {
-            this.updateInterval = updateInterval;
-        }
-
-        public void Update()
-        {
-            timeleft -= Time.unscaledDeltaTime;
-            accum += 1f / Time.unscaledDeltaTime;
-            ++frames;
-
-            if (timeleft <= 0.0)
-            {
-                FPS = accum / frames;
-                timeleft = updateInterval;
-                accum = 0.0F;
-                frames = 0;
-            }
-        }
-    }
-
+  
     [System.Serializable]
     public struct RandomFloatRange
     {

@@ -36,6 +36,24 @@ namespace HandyUtilities
             return range;
         }
 
+        public static bool GetMouseButtonDown(int button)
+        {
+            var e = Event.current;
+            return e.button == button && e.type == EventType.MouseDown;
+        }
+
+        public static bool GetMouseButton(int button)
+        {
+            var e = Event.current;
+            return e.button == button && e.type == EventType.MouseDrag;
+        }
+
+        public static bool GetMouseButtonUp(int button)
+        {
+            var e = Event.current;
+            return e.button == button && e.type == EventType.MouseUp;
+        }
+
         public static Vector3 mousePosition
         {
             get
