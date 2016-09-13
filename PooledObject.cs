@@ -18,7 +18,13 @@
             }
         }
 
-        public abstract bool isVisible { get; }
+        public virtual bool isVisible
+        {
+            get
+            {
+                return true;
+            }
+        }
 
         public bool isActive { get { return m_isActive; } }
 
@@ -27,7 +33,10 @@
             m_transform = transform;
         }
 
-        public abstract void Pick();
+        public virtual void Pick()
+        {
+            SetActive(true);
+        }
 
         public void SetActive(bool active)
         {
@@ -38,13 +47,14 @@
             }
         }
 
-        public void Return()
+        public virtual bool IsReadyToPick()
         {
-
+            return !isActive;
         }
 
-        public abstract bool IsReadyToPick();
-
-        public abstract void ResetObject();
+        public virtual void ResetObject()
+        {
+            SetActive(false);
+        }
     }
 }
