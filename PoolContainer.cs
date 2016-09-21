@@ -2,6 +2,16 @@
 
 namespace HandyUtilities.PoolSystem
 {
+    public static class PoolContainerHelper
+    {
+        public static SO CreateScriptableObjectAsset<SO>(string name) where SO : ScriptableObject
+        {
+            var path = UnityEditor.EditorUtility.SaveFilePanelInProject("Save Instance", name, "asset", "Choose Folder", Application.dataPath);
+            UnityEditor.AssetDatabase.CreateAsset(ScriptableObject.CreateInstance<SO>(), path);
+            return UnityEditor.AssetDatabase.LoadAssetAtPath<SO>(path);
+        }
+
+    }
     public abstract class PoolContainer<T> : SOContainer where T : PooledObject<T>
     {
         [SerializeField]
@@ -20,24 +30,18 @@ namespace HandyUtilities.PoolSystem
 
 #if UNITY_EDITOR
 
-        public static SO CreateScriptableObjectAsset<SO>(string name) where SO : ScriptableObject
-        {
-            var path = UnityEditor.EditorUtility.SaveFilePanelInProject("Save Instance", name, "asset", "Choose Folder", Application.dataPath);
-            UnityEditor.AssetDatabase.CreateAsset(CreateInstance<SO>(), path);
-            return UnityEditor.AssetDatabase.LoadAssetAtPath<SO>(path);
-        }
 
         /**********************************************************************************
         Use this code to create instances of pool containers: 
         ***********************************************************************************
         
-        #if UNITY_EDITOR
-        [UnityEditor.MenuItem("HandyUtilities/PoolSystem/Create Instance of <name>")]
-        static void Create()
-        {
-            CreateScriptableObjectAsset<PoolContainer>("<name>");
-        }
-        #endif
+#if UNITY_EDITOR
+    [UnityEditor.MenuItem("HandyUtilities/PoolSystem/Create Instance of Space Pool")]
+    static void Create()
+    {
+        PoolContainerHelper.CreateScriptableObjectAsset<PoolContainer<PooledObjectType>>("<name>");
+    }
+#endif
 
         ***********************************************************************************/
 #endif
