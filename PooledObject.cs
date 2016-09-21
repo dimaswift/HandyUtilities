@@ -31,11 +31,8 @@
 
         public void SetActive(bool active)
         {
-            if (m_isActive != active)
-            {
-                gameObject.SetActive(active);
-                m_isActive = active;
-            }
+            gameObject.SetActive(active);
+            m_isActive = active;
         }
 
         public void Return()

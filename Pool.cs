@@ -4,6 +4,8 @@ using System.Collections.Generic;
 
 namespace HandyUtilities.PoolSystem
 {
+
+    using System.Collections;
     using Events;
 
     public abstract class Pool
@@ -202,7 +204,7 @@ namespace HandyUtilities.PoolSystem
         }
     }
 
-    public sealed class Pool<T> : Pool where T : PooledObject<T>
+    public sealed class Pool<T> : Pool, IEnumerable<T> where T : PooledObject<T>
     {
 
         PooledObject<T>[] m_objects;
@@ -288,7 +290,7 @@ namespace HandyUtilities.PoolSystem
             m_order = 0;
         }
 
-        public T PickSafe()
+        public T PickReadyOne()
         {
             var obj = NextItemToPick();
             SkipNext();
@@ -301,7 +303,7 @@ namespace HandyUtilities.PoolSystem
                 if (c >= m_size)
                 {
                     onOverUse.RaiseEvent();
-                    break;
+                    return null;
                 }
             }
             obj.Pick();
@@ -347,6 +349,22 @@ namespace HandyUtilities.PoolSystem
                 }
             }
             return obj;
+        }
+
+        public IEnumerator<T> GetEnumerator()
+        {
+            for (int i = 0; i < objects.Length; i++)
+            {
+                yield return objects[i].Object;
+            }
+        }
+
+        IEnumerator IEnumerable.GetEnumerator()
+        {
+            for (int i = 0; i < objects.Length; i++)
+            {
+                yield return objects[i].Object;
+            }
         }
     }
 

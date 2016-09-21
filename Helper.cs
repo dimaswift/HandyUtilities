@@ -5,6 +5,34 @@ using UnityEngine.SceneManagement;
 
 namespace HandyUtilities
 {
+    public class PositionSaver
+    {
+        Vector3 m_localEuler, m_localPos, m_localScale;
+        Transform m_transform, m_parent;
+
+        public PositionSaver(Transform transform)
+        {
+            this.m_transform = transform;
+            this.m_parent = transform.parent;
+            Save();
+        }
+
+        public void Save()
+        {
+            m_localScale = m_transform.localScale;
+            m_localPos = m_transform.localPosition;
+            m_localEuler = m_transform.localEulerAngles;
+        }
+
+        public void Restore()
+        {
+            m_transform.SetParent(m_parent);
+            m_transform.localScale = m_localScale;
+            m_transform.localPosition = m_localPos;
+            m_transform.localEulerAngles = m_localEuler;
+        }
+    }
+
     [System.Serializable]
     public class CurvedAnimation
     {
@@ -321,6 +349,59 @@ namespace HandyUtilities
 
         #region Static Methods
 
+        public static System.Type GetType(string TypeName)
+        {
+
+            // Try Type.GetType() first. This will work with types defined
+            // by the Mono runtime, in the same assembly as the caller, etc.
+            var type = System.Type.GetType(TypeName);
+
+            // If it worked, then we're done here
+            if (type != null)
+                return type;
+
+            // If the TypeName is a full name, then we can try loading the defining assembly directly
+            if (TypeName.Contains("."))
+            {
+
+                // Get the name of the assembly (Assumption is that we are using 
+                // fully-qualified type names)
+                var assemblyName = TypeName.Substring(0, TypeName.IndexOf('.'));
+
+                // Attempt to load the indicated Assembly
+                var assembly = System.Reflection.Assembly.Load(assemblyName);
+                if (assembly == null)
+                    return null;
+
+                // Ask that assembly to return the proper Type
+                type = assembly.GetType(TypeName);
+                if (type != null)
+                    return type;
+
+            }
+
+            // If we still haven't found the proper type, we can enumerate all of the 
+            // loaded assemblies and see if any of them define the type
+            var currentAssembly = System.Reflection.Assembly.GetExecutingAssembly();
+            var referencedAssemblies = currentAssembly.GetReferencedAssemblies();
+            foreach (var assemblyName in referencedAssemblies)
+            {
+
+                // Load the referenced assembly
+                var assembly = System.Reflection.Assembly.Load(assemblyName);
+                if (assembly != null)
+                {
+                    // See if that assembly defines the named type
+                    type = assembly.GetType(TypeName);
+                    if (type != null)
+                        return type;
+                }
+            }
+
+            // The type just couldn't be found...
+            return null;
+
+        }
         public static float Remap(float value, float from1, float to1, float from2, float to2)
         {
             return (value - from1) / (to1 - from1) * (to2 - from2) + from2;
