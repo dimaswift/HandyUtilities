@@ -36,6 +36,20 @@ namespace HandyUtilities
             return range;
         }
 
+        /// <summary>
+        /// Don't forget to place callback "void OnSelectedShaderPopup(string command, Shader shader)" to the command object!
+        /// </summary>
+        /// <param name="r"></param>
+        /// <param name="shader"></param>
+        /// <param name="command"></param>
+        public static void DisplayShaderContext(Rect r, Shader shader, MenuCommand command)
+        {
+            Material temp = new Material(shader);
+            UnityEditorInternal.InternalEditorUtility.SetupShaderMenu(temp);
+            Object.DestroyImmediate(temp, true);
+            EditorUtility.DisplayPopupMenu(r, "CONTEXT/ShaderPopup", command);
+        }
+
         public static bool GetMouseButtonDown(int button)
         {
             var e = Event.current;
