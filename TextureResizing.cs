@@ -21,9 +21,29 @@ namespace HandyUtilities
             ThreadedScale(tex, newWidth, newHeight, false);
         }
 
+        public static void Point(Texture2D tex, float newWidth, float newHeight)
+        {
+            ThreadedScale(tex, (int) newWidth, (int) newHeight, false);
+        }
+
+        public static void Point(Texture2D tex, float scale)
+        {
+            ThreadedScale(tex, (int) (tex.width * scale), (int) (tex.height * scale), false);
+        }
+
+        public static void Bilinear(Texture2D tex, float scale)
+        {
+            ThreadedScale(tex,(int) (tex.width * scale) , (int) (tex.height * scale), true);
+        }
+
         public static void Bilinear(Texture2D tex, int newWidth, int newHeight)
         {
             ThreadedScale(tex, newWidth, newHeight, true);
+        }
+
+        public static void Bilinear(Texture2D tex, float newWidth, float newHeight)
+        {
+            ThreadedScale(tex, (int)newWidth, (int) newHeight, true);
         }
 
         static Color[] texColors, newColors;

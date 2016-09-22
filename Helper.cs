@@ -454,6 +454,11 @@ namespace HandyUtilities
             return "Assets" + absolutepath.Substring(Application.dataPath.Length);
         }
 
+        public static string ConvertToAbsolutePath(string relativePath)
+        {
+            return Application.dataPath.Remove(Application.dataPath.Length - 6, 6) + relativePath;
+        }
+
         public static void Restart()
         {
             SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
