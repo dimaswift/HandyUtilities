@@ -5,6 +5,23 @@ using UnityEngine.SceneManagement;
 
 namespace HandyUtilities
 {
+    public class Rigidbody2DPositionSaver : PositionSaver
+    {
+        Rigidbody2D m_body;
+
+        public Rigidbody2DPositionSaver(Rigidbody2D body) : base(body.transform)
+        {
+            m_body = body;
+        }
+
+        public override void Restore()
+        {
+            m_body.isKinematic = true;
+            base.Restore();
+            m_body.isKinematic = false;
+        }
+    }
+
     public class PositionSaver
     {
         Vector3 m_localEuler, m_localPos, m_localScale;
@@ -17,14 +34,14 @@ namespace HandyUtilities
             Save();
         }
 
-        public void Save()
+        public virtual void Save()
         {
             m_localScale = m_transform.localScale;
             m_localPos = m_transform.localPosition;
             m_localEuler = m_transform.localEulerAngles;
         }
 
-        public void Restore()
+        public virtual void Restore()
         {
             m_transform.SetParent(m_parent);
             m_transform.localScale = m_localScale;
