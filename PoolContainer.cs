@@ -10,6 +10,8 @@ namespace HandyUtilities.PoolSystem
             var path = UnityEditor.EditorUtility.SaveFilePanelInProject("Save Instance", name, "asset", "Choose Folder", Application.dataPath);
             UnityEditor.AssetDatabase.CreateAsset(ScriptableObject.CreateInstance<SO>(), path);
             return UnityEditor.AssetDatabase.LoadAssetAtPath<SO>(path);
+#else
+            return null;
 #endif
         }
 
