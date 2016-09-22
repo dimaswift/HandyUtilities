@@ -6,9 +6,11 @@ namespace HandyUtilities.PoolSystem
     {
         public static SO CreateScriptableObjectAsset<SO>(string name) where SO : ScriptableObject
         {
+#if UNITY_EDITOR
             var path = UnityEditor.EditorUtility.SaveFilePanelInProject("Save Instance", name, "asset", "Choose Folder", Application.dataPath);
             UnityEditor.AssetDatabase.CreateAsset(ScriptableObject.CreateInstance<SO>(), path);
             return UnityEditor.AssetDatabase.LoadAssetAtPath<SO>(path);
+#endif
         }
 
     }
