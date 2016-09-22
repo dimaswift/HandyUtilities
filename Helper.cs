@@ -5,6 +5,12 @@ using UnityEngine.SceneManagement;
 
 namespace HandyUtilities
 {
+    public interface ICustomEditorIcon
+    {
+        Texture2D editorIcon { get; }
+        float editorIconSize { get; }
+    }
+
     public class Rigidbody2DPositionSaver : PositionSaver
     {
         Rigidbody2D m_body;
