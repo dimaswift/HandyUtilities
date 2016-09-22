@@ -30,10 +30,20 @@ namespace HandyUtilities
                 if (brush is ICustomEditorIcon)
                 {
                     ICustomEditorIcon c = brush as ICustomEditorIcon;
-                    var a = (float) c.editorIcon.width / c.editorIcon.height;
-                    r.height = c.editorIconSize;
-                    r.width = r.height * a;
-                    GUI.DrawTexture(r, c.editorIcon);
+                    if(c.editorIcon.height > c.editorIcon.width)
+                    {
+                        var a = (float) c.editorIcon.width / c.editorIcon.height;
+                        r.height = c.editorIconSize;
+                        r.width = r.height * a;
+                        GUI.DrawTexture(r, c.editorIcon);
+                    }
+                    else
+                    {
+                        var a = (float) c.editorIcon.height / c.editorIcon.width;
+                        r.width = c.editorIconSize;
+                        r.height = r.width * a;
+                        GUI.DrawTexture(r, c.editorIcon);
+                    }
                 }
             }
 
