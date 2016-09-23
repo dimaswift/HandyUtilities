@@ -4,12 +4,18 @@ using UnityEngine.UI;
 [RequireComponent(typeof(Text))]
 public sealed class FPSMeter : MonoBehaviour
 {
-    Text text;
+
+    Text text = null;
     float updateInterval = 0.5F;
     float accum = 0;
     int frames = 0;
     float timeleft;
     public float FPS { get; private set; }
+
+    void Awake()
+    {
+        text = GetComponent<Text>();
+    }
 
     public FPSMeter(float updateInterval = .5f)
     {

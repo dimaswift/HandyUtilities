@@ -8,6 +8,47 @@ namespace HandyUtilities
 {
     public static class HandyEditor
     {
+        [InitializeOnLoadMethod]
+        static void Init()
+        {
+            EditorApplication.projectWindowItemOnGUI -= MyCallback();
+            EditorApplication.projectWindowItemOnGUI += MyCallback();
+        }
+
+        static EditorApplication.ProjectWindowItemCallback MyCallback()
+        {
+            EditorApplication.ProjectWindowItemCallback myCallback = new EditorApplication.ProjectWindowItemCallback(IconGUI);
+            return myCallback;
+        }
+
+        static void IconGUI(string s, Rect r)
+        {
+            string fileName = AssetDatabase.GUIDToAssetPath(s);
+            if (fileName.EndsWith(".asset"))
+            {
+                var brush = AssetDatabase.LoadAssetAtPath<ScriptableObject>(fileName);
+                if (brush is ICustomEditorIcon)
+                {
+                    ICustomEditorIcon c = brush as ICustomEditorIcon;
+                    if(c.editorIcon.height > c.editorIcon.width)
+                    {
+                        var a = (float) c.editorIcon.width / c.editorIcon.height;
+                        r.height = c.editorIconSize;
+                        r.width = r.height * a;
+                        GUI.DrawTexture(r, c.editorIcon);
+                    }
+                    else
+                    {
+                        var a = (float) c.editorIcon.height / c.editorIcon.width;
+                        r.width = c.editorIconSize;
+                        r.height = r.width * a;
+                        GUI.DrawTexture(r, c.editorIcon);
+                    }
+                }
+            }
+
+        }
+
         public static Tool lastTool { get; private set; }
 
         public static RandomIntRange DrawRandomRange(Rect rect, RandomIntRange range, string label)
@@ -34,6 +75,20 @@ namespace HandyUtilities
             GUI.Label(new Rect(r.x + r.width * 2, r.y, r.width, r.height), "max:");
             range.max = EditorGUI.FloatField(new Rect(r.x + r.width * 3f, r.y, r.width, r.height), range.max);
             return range;
+        }
+
+        /// <summary>
+        /// Don't forget to place callback "void OnSelectedShaderPopup(string command, Shader shader)" to the command object!
+        /// </summary>
+        /// <param name="r"></param>
+        /// <param name="shader"></param>
+        /// <param name="command"></param>
+        public static void DisplayShaderContext(Rect r, Shader shader, MenuCommand command)
+        {
+            Material temp = new Material(shader);
+            UnityEditorInternal.InternalEditorUtility.SetupShaderMenu(temp);
+            Object.DestroyImmediate(temp, true);
+            EditorUtility.DisplayPopupMenu(r, "CONTEXT/ShaderPopup", command);
         }
 
         public static bool GetMouseButtonDown(int button)
@@ -129,6 +184,12 @@ namespace HandyUtilities
         public static T CreateScriptableObjectAsset<T>(string name) where T : ScriptableObject
         {
             var path = "Assets/" + name + ".asset";
+            AssetDatabase.CreateAsset(ScriptableObject.CreateInstance<T>(), path);
+            return AssetDatabase.LoadAssetAtPath<T>(path);
+        }
+
+        public static T CreateScriptableObjectAsset<T>(string name, string path) where T : ScriptableObject
+        {
             AssetDatabase.CreateAsset(ScriptableObject.CreateInstance<T>(), path);
             return AssetDatabase.LoadAssetAtPath<T>(path);
         }

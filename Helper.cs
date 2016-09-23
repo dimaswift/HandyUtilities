@@ -5,6 +5,29 @@ using UnityEngine.SceneManagement;
 
 namespace HandyUtilities
 {
+    public interface ICustomEditorIcon
+    {
+        Texture2D editorIcon { get; }
+        float editorIconSize { get; }
+    }
+
+    public class Rigidbody2DPositionSaver : PositionSaver
+    {
+        Rigidbody2D m_body;
+
+        public Rigidbody2DPositionSaver(Rigidbody2D body) : base(body.transform)
+        {
+            m_body = body;
+        }
+
+        public override void Restore()
+        {
+            m_body.isKinematic = true;
+            base.Restore();
+            m_body.isKinematic = false;
+        }
+    }
+
     public class PositionSaver
     {
         Vector3 m_localEuler, m_localPos, m_localScale;
@@ -17,14 +40,14 @@ namespace HandyUtilities
             Save();
         }
 
-        public void Save()
+        public virtual void Save()
         {
             m_localScale = m_transform.localScale;
             m_localPos = m_transform.localPosition;
             m_localEuler = m_transform.localEulerAngles;
         }
 
-        public void Restore()
+        public virtual void Restore()
         {
             m_transform.SetParent(m_parent);
             m_transform.localScale = m_localScale;
@@ -429,6 +452,11 @@ namespace HandyUtilities
         public static string ConvertLoRelativePath(string absolutepath)
         {
             return "Assets" + absolutepath.Substring(Application.dataPath.Length);
+        }
+
+        public static string ConvertToAbsolutePath(string relativePath)
+        {
+            return Application.dataPath.Remove(Application.dataPath.Length - 6, 6) + relativePath;
         }
 
         public static void Restart()
