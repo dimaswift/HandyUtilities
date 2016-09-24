@@ -41,7 +41,10 @@ namespace HandyUtilities
             GUI.Label(rect, headerName);
         }
 
-        protected abstract void OnDrawItem(Rect rect, int index, bool active, bool focused);
+        protected virtual void OnDrawItem(Rect rect, int index, bool active, bool focused)
+        {
+
+        }
 
         private void DrawElement(Rect rect, int index, bool active, bool focused)
         {
@@ -54,13 +57,25 @@ namespace HandyUtilities
             }
         }
 
-        private void AddItem(ReorderableList l)
+        protected void DoLayoutList()
         {
-            list.Add(default(T));
+            reorderableList.DoLayoutList();
+        }
+
+        protected void DoList(Rect rect)
+        {
+            reorderableList.DoList(rect);
+        }
+
+        protected abstract T GetNewItem();
+
+        protected virtual void AddItem(ReorderableList l)
+        {
+            list.Add(GetNewItem());
             EditorUtility.SetDirty(target);
         }
 
-        private void RemoveItem(ReorderableList l)
+        protected virtual void RemoveItem(ReorderableList l)
         {
             list.RemoveAt(l.index);
             EditorUtility.SetDirty(target);

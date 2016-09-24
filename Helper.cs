@@ -11,6 +11,11 @@ namespace HandyUtilities
         float editorIconSize { get; }
     }
 
+    public interface ICustomEditorIconDrawer
+    {
+        void DrawEditorIcon(Rect rect);
+    }
+
     public class Rigidbody2DPositionSaver : PositionSaver
     {
         Rigidbody2D m_body;
@@ -481,7 +486,9 @@ namespace HandyUtilities
                 pos.z = z;
                 return pos;
             }
-            return m_mainCam.ScreenToWorldPoint(Input.mousePosition);
+            var m = m_mainCam.ScreenToWorldPoint(Input.mousePosition);
+            m.z = z;
+            return m;
         }
 
         public static string GetGameObjectPath(GameObject obj)

@@ -11,11 +11,76 @@ namespace HandyUtilities
         [InitializeOnLoadMethod]
         static void Init()
         {
-            EditorApplication.projectWindowItemOnGUI -= MyCallback();
-            EditorApplication.projectWindowItemOnGUI += MyCallback();
+            EditorApplication.projectWindowItemOnGUI -= EditorIconDrawCallback();
+            EditorApplication.projectWindowItemOnGUI += EditorIconDrawCallback();
+            m_knob_icon = AssetDatabase.LoadAssetAtPath<Texture2D>("HandyUtilities/Editor/Icons/knob_icon.png");
+            m_knowBack_icon = AssetDatabase.LoadAssetAtPath<Texture2D>("HandyUtilities/Editor/Icons/knobBack_icon.png");
         }
 
-        static EditorApplication.ProjectWindowItemCallback MyCallback()
+        static Texture2D m_knob_icon, m_knowBack_icon;
+        static Vector2 screenMousePosition;
+        static bool m_draggingKnob;
+
+        static Texture2D knobIcon
+        {
+            get
+            {
+                if(m_knob_icon == null)
+                    m_knob_icon = AssetDatabase.LoadAssetAtPath<Texture2D>("Assets/HandyUtilities/Editor/Icons/knob_icon.png");
+                return m_knob_icon;
+            }
+        }
+
+        static Texture2D knobBackIcon
+        {
+            get
+            {
+                if (m_knowBack_icon == null)
+                    m_knowBack_icon = AssetDatabase.LoadAssetAtPath<Texture2D>("Assets/HandyUtilities/Editor/Icons/knobBack_icon.png");
+                return m_knowBack_icon;
+            }
+        }
+
+        public static float FloatAngle(Rect rect, float value, bool showValue)
+        {
+            Rect knobRect = new Rect(rect.x, rect.y, rect.height, rect.height);
+
+            if (Event.current != null)
+            {
+                if (Event.current.type == EventType.MouseDown && knobRect.Contains(Event.current.mousePosition))
+                {
+                    m_draggingKnob = true;
+                    screenMousePosition = Event.current.mousePosition;
+                }
+                if (Event.current.type == EventType.MouseUp && m_draggingKnob)
+                {
+                    m_draggingKnob = false;
+                }
+                if (m_draggingKnob)
+                {
+                    Vector2 move = screenMousePosition - Event.current.mousePosition;
+                    value += -move.x - move.y;
+                    GUI.changed = true;
+                    screenMousePosition = Event.current.mousePosition;
+                }
+            }
+            
+            GUI.DrawTexture(knobRect, knobBackIcon); 
+            Matrix4x4 matrix = GUI.matrix;
+            GUIUtility.RotateAroundPivot(value, knobRect.center);
+            GUI.DrawTexture(knobRect, knobIcon);
+            GUI.matrix = matrix;
+
+            if (showValue)
+            {
+                Rect label = new Rect(rect.x + rect.height, rect.y, rect.width, rect.height);
+                GUI.Label(label, value.ToString());
+            }
+            value = Mathf.Clamp(value, -180, 180);
+            return value;
+        }
+
+        static EditorApplication.ProjectWindowItemCallback EditorIconDrawCallback()
         {
             EditorApplication.ProjectWindowItemCallback myCallback = new EditorApplication.ProjectWindowItemCallback(IconGUI);
             return myCallback;
@@ -30,20 +95,18 @@ namespace HandyUtilities
                 if (brush is ICustomEditorIcon)
                 {
                     ICustomEditorIcon c = brush as ICustomEditorIcon;
-                    if(c.editorIcon.height > c.editorIcon.width)
-                    {
-                        var a = (float) c.editorIcon.width / c.editorIcon.height;
-                        r.height = c.editorIconSize;
-                        r.width = r.height * a;
-                        GUI.DrawTexture(r, c.editorIcon);
-                    }
-                    else
-                    {
-                        var a = (float) c.editorIcon.height / c.editorIcon.width;
-                        r.width = c.editorIconSize;
-                        r.height = r.width * a;
-                        GUI.DrawTexture(r, c.editorIcon);
-                    }
+                    if (c.editorIcon == null) return;
+                    var maxH = r.height;
+                 
+                    var a = (float) c.editorIcon.width / c.editorIcon.height;
+                    r.height = Mathf.Clamp(c.editorIconSize, 1, maxH);
+                    r.width = r.height * a;
+                    GUI.DrawTexture(r, c.editorIcon);
+                }
+                else if(brush is ICustomEditorIconDrawer)
+                {
+                    ICustomEditorIconDrawer c = brush as ICustomEditorIconDrawer;
+                    c.DrawEditorIcon(r);
                 }
             }
 
@@ -109,7 +172,7 @@ namespace HandyUtilities
             return e.button == button && e.type == EventType.MouseUp;
         }
 
-        public static Vector3 mousePosition
+        public static Vector2 mousePosition
         {
             get
             {
