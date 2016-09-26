@@ -370,12 +370,12 @@ namespace HandyUtilities
         static void Init()
         {
             m_mainCam = Camera.main;
-            m_mainCamTransform = m_mainCam.transform;
+            m_mainCamTransform = m_mainCam ? m_mainCam.transform : null;
         }
 
         #endregion Initilization
 
-        #region Static Methods
+        #region Static Methods 
 
         public static System.Type GetType(string TypeName)
         {
