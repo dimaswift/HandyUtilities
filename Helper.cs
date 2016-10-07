@@ -20,6 +20,8 @@ namespace HandyUtilities
     {
         Rigidbody2D m_body;
 
+        public Rigidbody2D body { get { return m_body; } }
+
         public Rigidbody2DPositionSaver(Rigidbody2D body) : base(body.transform)
         {
             m_body = body;
