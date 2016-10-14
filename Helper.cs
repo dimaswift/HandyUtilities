@@ -77,6 +77,10 @@ namespace HandyUtilities
         bool m_isAnimating, m_inited;
         Keyframe m_lastFrame, m_firstFrame;
 
+        public Keyframe firstFrame { get { return m_firstFrame; } }
+
+        public Keyframe lastFrame { get { return m_lastFrame; } }
+
         public bool isAnimating { get { return m_isAnimating; } }
 
         public CurvedAnimation() { }
