@@ -77,6 +77,10 @@ namespace HandyUtilities
         bool m_isAnimating, m_inited;
         Keyframe m_lastFrame, m_firstFrame;
 
+        public Keyframe firstFrame { get { return m_firstFrame; } }
+
+        public Keyframe lastFrame { get { return m_lastFrame; } }
+
         public bool isAnimating { get { return m_isAnimating; } }
 
         public CurvedAnimation() { }
@@ -89,11 +93,27 @@ namespace HandyUtilities
             Init();
         }
 
-        void Init()
+        public void Init()
         {
             m_lastFrame = m_curve.keys.LastItem();
             m_firstFrame = m_curve.keys[0];
             m_inited = true;
+        }
+
+        public void Stop()
+        {
+            m_isAnimating = false;
+            m_time = m_firstFrame.time;
+        }
+
+        public void Pause()
+        {
+            m_isAnimating = false;
+        }
+
+        public void Resume()
+        {
+            m_isAnimating = true;
         }
 
         public void Start()
