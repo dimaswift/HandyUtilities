@@ -17,6 +17,156 @@ namespace HandyUtilities.PoolSystem
         public bool isEmpty { get; protected set; }
         public readonly GameEvent onOverUse = new GameEvent();
     }
+    public sealed class InterfacePool<T> : Pool, IEnumerable<T> where T : Component
+    {
+
+        T[] m_objects;
+        IPoolable[] m_interfaces;
+
+        public T[] objects { get { return m_objects; } }
+
+        public InterfacePool(T source, int size)
+        {
+            var container = new GameObject(source.name + "_pool").transform;
+            m_objects = new T[size];
+            m_interfaces = new IPoolable[size];
+            m_size = size;
+            for (var i = 0; i < size; i++)
+            {
+                var obj = Object.Instantiate(source.gameObject);
+                obj.transform.SetParent(container);
+                var ip = obj.GetComponent<T>();
+                m_interfaces[i] = ip.GetComponent<IPoolable>();
+                m_objects[i] = ip;
+                m_interfaces[i].Init();
+                ip.gameObject.SetActive(false);
+            }
+        }
+
+        public InterfacePool(T[] source, int size)
+        {
+            var container = new GameObject(source[0].name + "_pool").transform;
+            m_objects = new T[size];
+            m_interfaces = new IPoolable[size];
+            m_size = size;
+            int index = 0;
+            for (var i = 0; i < size; i++)
+            {
+                var obj = Object.Instantiate(source[index].gameObject);
+                obj.transform.SetParent(container);
+                var ip = obj.GetComponent<T>();
+                m_objects[i] = ip;
+                m_interfaces[i] = ip.GetComponent<IPoolable>();
+                m_interfaces[i].Init();
+                ip.gameObject.SetActive(false);
+                index++;
+                if (index >= source.Length)
+                    index = 0;
+            }
+        }
+
+        public IEnumerable<T> GetObjects()
+        {
+            foreach (var o in objects)
+                yield return o;
+        }
+
+        public T this[int i]
+        {
+            get
+            {
+                return objects[i];
+            }
+        }
+
+        public IEnumerable<T> GetObjects(bool readyOnly)
+        {
+            for (int i = 0; i < m_size; i++)
+            {
+                var o = m_objects[i];
+                var inter = m_interfaces[i];
+                if (readyOnly)
+                {
+                    if (inter.IsReadyToPick())
+                    {
+                        yield return o;
+                    }
+                }
+                else
+                {
+                    if (!inter.IsReadyToPick())
+                        yield return o;
+                }
+            }
+        }
+
+        public void Reset()
+        {
+            for (int i = 0; i < m_size; i++)
+            {
+                m_interfaces[i].Prepare();
+            }
+            isEmpty = false;
+            m_order = 0;
+        }
+
+        public T PickReadyOne()
+        {
+            var inter = m_interfaces[m_order];
+            var obj = m_objects[m_order];
+            SkipNext();
+            int c = 0;
+            while (!inter.IsReadyToPick())
+            {
+                obj = m_objects[m_order];
+                inter = m_interfaces[m_order];
+                SkipNext();
+                c++;
+                if (c >= m_size)
+                {
+                    onOverUse.RaiseEvent();
+                    return null;
+                }
+            }
+            inter.Pick();
+            return obj;
+        }
+
+
+        public T Pick()
+        {
+            var obj = m_objects[m_order];
+            m_interfaces[m_order].Pick();
+            SkipNext();
+            return obj;
+        }
+
+        public void SkipNext()
+        {
+            m_order++;
+            if (m_order > m_size - 1)
+            {
+                m_order = 0;
+            }
+        }
+
+        public IEnumerator<T> GetEnumerator()
+        {
+            for (int i = 0; i < m_size; i++)
+            {
+                yield return objects[i];
+            }
+        }
+
+        IEnumerator IEnumerable.GetEnumerator()
+        {
+            for (int i = 0; i < m_size; i++)
+            {
+                yield return objects[i];
+            }
+        }
+    }
+
 
     public sealed class TransformPool : Pool
     {
@@ -368,25 +518,17 @@ namespace HandyUtilities.PoolSystem
         }
     }
 
-    public interface IPoolable<T> where T : Component
+    public interface IPoolable
     {
-        T Object { get; }
-
         Transform cachedTransform { get; }
-
-        bool isVisible { get; }
-
-        bool isActive { get; }
 
         void Init();
 
         void Pick();
 
-        void Return();
-
         bool IsReadyToPick();
 
-        void ResetObject();
+        void Prepare();
 
         void SetActive(bool active);
     }

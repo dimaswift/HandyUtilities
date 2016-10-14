@@ -11,9 +11,16 @@ namespace HandyUtilities
         float editorIconSize { get; }
     }
 
+    public interface ICustomEditorIconDrawer
+    {
+        void DrawEditorIcon(Rect rect);
+    }
+
     public class Rigidbody2DPositionSaver : PositionSaver
     {
         Rigidbody2D m_body;
+
+        public Rigidbody2D body { get { return m_body; } }
 
         public Rigidbody2DPositionSaver(Rigidbody2D body) : base(body.transform)
         {
@@ -365,12 +372,12 @@ namespace HandyUtilities
         static void Init()
         {
             m_mainCam = Camera.main;
-            m_mainCamTransform = m_mainCam.transform;
+            m_mainCamTransform = m_mainCam ? m_mainCam.transform : null;
         }
 
         #endregion Initilization
 
-        #region Static Methods
+        #region Static Methods 
 
         public static System.Type GetType(string TypeName)
         {
@@ -481,7 +488,9 @@ namespace HandyUtilities
                 pos.z = z;
                 return pos;
             }
-            return m_mainCam.ScreenToWorldPoint(Input.mousePosition);
+            var m = m_mainCam.ScreenToWorldPoint(Input.mousePosition);
+            m.z = z;
+            return m;
         }
 
         public static string GetGameObjectPath(GameObject obj)

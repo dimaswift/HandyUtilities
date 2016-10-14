@@ -22,10 +22,13 @@ namespace HandyUtilities.PoolSystem
         protected T m_prefab;
         [SerializeField]
         protected int m_size = 10;
-
+        [System.NonSerialized]
+        bool m_initialized = false;
         public override void Init()
         {
+            if (m_initialized) return;
             m_pool = new Pool<T>(m_prefab, m_size);
+            m_initialized = true;
         }
 
         protected Pool<T> m_pool;
