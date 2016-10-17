@@ -159,9 +159,9 @@ namespace HandyUtilities
 
         public float size { get { return _size; } }
 
-        public float columnCount { get { return _columns.Length * _size; } }
+        public float columnCount { get { return _columns.Length; } }
 
-        public float rowCount { get { return _rows.Length * _size; } }
+        public float rowCount { get { return _rows.Length; } }
 
         public Grid(int columns, int rows, float size, Vector2 origin)
         {
@@ -205,20 +205,44 @@ namespace HandyUtilities
 
         public float GetClosetRow(float row)
         {
-            System.Array.Sort(_rows, (p1, p2) => Mathf.Abs(row - p1).CompareTo(Mathf.Abs(row - p2)));
-            return _rows[0];
+            row -= size * .5f;
+            var xDist = float.MaxValue;
+            int closestX = -1;
+            for (int x = 0; x < _rows.Length; x++)
+            {
+                var xd = Mathf.Abs(_rows[x] - row);
+                if (xd < xDist)
+                {
+                    closestX = x;
+                    xDist = xd;
+                }
+            }
+            return _rows[closestX];
         }
 
         public float GetClosetColumn(float col)
         {
-            System.Array.Sort(_columns, (p1, p2) => Mathf.Abs(col - p1).CompareTo(Mathf.Abs(col - p2)));
-            return _columns[0];
+            col -= size * .5f;
+            var yDist = float.MaxValue;
+            int closestY = -1;
+            for (int y = 0; y < _columns.Length; y++)
+            {
+                var xd = Mathf.Abs(_columns[y] - col);
+                if (xd < yDist)
+                {
+                    closestY = y;
+                    yDist = xd;
+                }
+            }
+            return _columns[closestY];
         }
         public Vector2 GetPoint(Vector2 point)
         {
-            System.Array.Sort(_rows, (g1, g2) => Mathf.Abs(g1 - point.x).CompareTo(Mathf.Abs(g2 - point.x)));
-            System.Array.Sort(_columns, (g1, g2) => Mathf.Abs(g1 - point.y).CompareTo(Mathf.Abs(g2 - point.y)));
-            return new Vector2(_rows[0], _columns[0]);
+
+            var pos = new Vector2(GetClosetColumn(point.x), GetClosetRow(point.y));
+            pos.x += size * .5f;
+            pos.y += size * .5f;
+            return pos;
         }
     }
 

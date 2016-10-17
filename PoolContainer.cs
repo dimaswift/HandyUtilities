@@ -4,6 +4,24 @@ namespace HandyUtilities.PoolSystem
 {
     public static class PoolContainerHelper
     {
+
+        public static void CreatePool<T, T2>(T target) where T2 : PoolContainer<T> where T : PooledObject<T>
+        {
+#if UNITY_EDITOR
+            var pool = ScriptableObject.CreateInstance<T2>();
+            var assetPath = UnityEditor.AssetDatabase.GetAssetPath(target.gameObject);
+
+            var dirPath = System.IO.Path.GetDirectoryName(assetPath);
+            assetPath = dirPath + "/" + "pool_" + target.name + ".asset";
+            pool.prefab = target;
+            UnityEditor.EditorUtility.SetDirty(pool);
+            UnityEditor.AssetDatabase.CreateAsset(pool, assetPath);
+            target.pool = UnityEditor.AssetDatabase.LoadAssetAtPath<T2>(assetPath);
+            UnityEditor.EditorUtility.SetDirty(target);
+#endif
+        }
+
+
         public static SO CreateScriptableObjectAsset<SO>(string name) where SO : ScriptableObject
         {
 #if UNITY_EDITOR
@@ -16,10 +34,18 @@ namespace HandyUtilities.PoolSystem
         }
 
     }
+
     public abstract class PoolContainer<T> : SOContainer where T : PooledObject<T>
     {
         [SerializeField]
         protected T m_prefab;
+
+        public T prefab
+        {
+            get { return m_prefab; }
+            set { m_prefab = value; }
+        }
+
         [SerializeField]
         protected int m_size = 10;
         [System.NonSerialized]
@@ -42,6 +68,14 @@ namespace HandyUtilities.PoolSystem
         Use this code to create instances of pool containers: 
         ***********************************************************************************
         
+#if UNITY_EDITOR
+        [UnityEditor.MenuItem("CONTEXT/PooledObjectType/Create Pool")]
+        static void Create(UnityEditor.MenuCommand command) 
+        {
+            PoolContainerHelper.CreatePool<PooledObjectType, PoolType>(command.context as PooledObjectType);
+        }
+#endif
+
 #if UNITY_EDITOR
     [UnityEditor.MenuItem("HandyUtilities/PoolSystem/Create Instance of Space Pool")]
     static void Create()

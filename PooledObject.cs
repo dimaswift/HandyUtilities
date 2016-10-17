@@ -2,9 +2,11 @@
 {
     using UnityEngine;
 
-    public abstract class PooledObject<T> : MonoBehaviour
+    public abstract class PooledObject<T> : MonoBehaviour where T : PooledObject<T>
     {
         Transform m_transform;
+
+        public abstract PoolContainer<T> pool { get; set; }
 
         bool m_isActive = true;
 

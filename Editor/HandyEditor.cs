@@ -86,6 +86,16 @@ namespace HandyUtilities
             return myCallback;
         }
 
+        public static void DrawTextureGUI(Rect position, Sprite sprite, Vector2 size)
+        {
+            Rect spriteRect = new Rect(sprite.rect.x / sprite.texture.width, sprite.rect.y / sprite.texture.height,
+                                       sprite.rect.width / sprite.texture.width, sprite.rect.height / sprite.texture.height);
+            Vector2 actualSize = size;
+
+            actualSize.y *= (sprite.rect.height / sprite.rect.width);
+            GUI.DrawTextureWithTexCoords(new Rect(position.x, position.y + (size.y - actualSize.y) / 2, actualSize.x, actualSize.y), sprite.texture, spriteRect);
+        }
+
         static void IconGUI(string s, Rect r)
         {
             string fileName = AssetDatabase.GUIDToAssetPath(s);
