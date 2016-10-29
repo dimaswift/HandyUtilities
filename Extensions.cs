@@ -7,6 +7,15 @@ namespace HandyUtilities
 {
     public static class ExtensionMethods
     {
+        #region Strings
+
+        public static string ToUpperFirst(this string s)
+        {
+            return s[0].ToString().ToUpper() + s.Substring(1);
+        }
+
+        #endregion Strings
+
         #region Transform
 
         /// <summary>
