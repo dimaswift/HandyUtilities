@@ -40,6 +40,13 @@ namespace HandyUtilities
         Vector3 m_localEuler, m_localPos, m_localScale;
         Transform m_transform, m_parent;
 
+        public Vector3 localEuler { get { return m_localEuler; } }
+        public Vector3 localPos { get { return m_localPos; } }
+        public Vector3 localScale { get { return m_localScale; } }
+
+        public Transform transform { get { return m_transform; } }
+        public Transform parent { get { return m_parent; } }
+
         public PositionSaver(Transform transform)
         {
             this.m_transform = transform;
@@ -422,6 +429,47 @@ namespace HandyUtilities
         #endregion Initilization
 
         #region Static Methods 
+
+        public static void DirectoryCopy(string sourceDirName, string destDirName, bool copySubDirs)
+        {
+            // Get the subdirectories for the specified directory.
+            System.IO.DirectoryInfo dir = new System.IO.DirectoryInfo(sourceDirName);
+
+            if (!dir.Exists)
+            {
+                throw new System.IO.DirectoryNotFoundException(
+                    "Source directory does not exist or could not be found: "
+                    + sourceDirName);
+            }
+
+            System.IO.DirectoryInfo[] dirs = dir.GetDirectories();
+            // If the destination directory doesn't exist, create it.
+            if (!System.IO.Directory.Exists(destDirName))
+            {
+                System.IO.Directory.CreateDirectory(destDirName);
+            }
+
+            // Get the files in the directory and copy them to the new location.
+            System.IO.FileInfo[] files = dir.GetFiles();
+            foreach (System.IO.FileInfo file in files)
+            {
+                if(file.Extension != "meta")
+                {
+                    string temppath = System.IO.Path.Combine(destDirName, file.Name);
+                    file.CopyTo(temppath, false);
+                }
+            }
+
+            // If copying subdirectories, copy them and their contents to new location.
+            if (copySubDirs)
+            {
+                foreach (System.IO.DirectoryInfo subdir in dirs)
+                {
+                    string temppath = System.IO.Path.Combine(destDirName, subdir.Name);
+                    DirectoryCopy(subdir.FullName, temppath, copySubDirs);
+                }
+            }
+        }
 
         public static System.Type GetType(string TypeName)
         {
