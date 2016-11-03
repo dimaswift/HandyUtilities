@@ -16,6 +16,25 @@ namespace HandyUtilities
         void DrawEditorIcon(Rect rect);
     }
 
+    public class RigidbodyPositionSaver : PositionSaver
+    {
+        Rigidbody m_body;
+
+        public Rigidbody body { get { return m_body; } }
+
+        public RigidbodyPositionSaver(Rigidbody body) : base(body.transform)
+        {
+            m_body = body;
+        }
+
+        public override void Restore()
+        {
+            m_body.isKinematic = true;
+            base.Restore();
+            m_body.isKinematic = false;
+        }
+    }
+
     public class Rigidbody2DPositionSaver : PositionSaver
     {
         Rigidbody2D m_body;
@@ -78,6 +97,8 @@ namespace HandyUtilities
         Keyframe m_lastFrame, m_firstFrame;
 
         public Keyframe firstFrame { get { return m_firstFrame; } }
+
+        public float time { get { return m_time; } }
 
         public Keyframe lastFrame { get { return m_lastFrame; } }
 

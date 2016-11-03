@@ -40,6 +40,9 @@ namespace HandyUtilities.PoolSystem
         [SerializeField]
         protected T m_prefab;
 
+        [SerializeField]
+        bool m_adjustCapacity = false;
+
         public T prefab
         {
             get { return m_prefab; }
@@ -50,11 +53,26 @@ namespace HandyUtilities.PoolSystem
         protected int m_size = 10;
         [System.NonSerialized]
         bool m_initialized = false;
+
+        System.Action onCapacityExeeded;
+
         public override void Init()
         {
             if (m_initialized) return;
-            m_pool = new Pool<T>(m_prefab, m_size);
+            m_pool = new Pool<T>(m_prefab, m_size, OnCapacityExceeded);
             m_initialized = true;
+        }
+
+        void OnCapacityExceeded()
+        {
+            if(m_adjustCapacity)
+            {
+                pool.IncreaseCapacity(1);
+                m_size++;
+#if UNITY_EDITOR
+                UnityEditor.EditorUtility.SetDirty(this);  
+#endif
+            }
         }
 
         protected Pool<T> m_pool;

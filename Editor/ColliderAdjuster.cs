@@ -52,7 +52,7 @@ namespace HandyUtilities
 
             var box = command.context as BoxCollider;
             Undo.RecordObject(box, "Adjust Collider");
-            var mesh = box.transform.GetChild(0).GetComponent<MeshFilter>();
+            var mesh = box.transform.GetComponentInChildren<MeshFilter>();
             if (mesh)
             {
                 //   var size = Vector3.Scale(mesh.sharedMesh.bounds.size, mesh.transform.localScale);
