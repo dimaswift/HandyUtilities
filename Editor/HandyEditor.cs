@@ -41,6 +41,18 @@ namespace HandyUtilities
             }
         }
 
+        public static void FocusOnPoint(Vector3 point, float size = 1f)
+        {
+            var s = Selection.activeGameObject;
+            var g = GameObject.CreatePrimitive(PrimitiveType.Cube);
+            Selection.activeGameObject = g;
+            g.transform.localScale = new Vector3(size, size, size);
+            g.transform.position = point;
+            SceneView.lastActiveSceneView.FrameSelected();
+            Selection.activeGameObject = s;
+            Object.DestroyImmediate(g);
+        }
+
         public static float FloatAngle(Rect rect, float value, bool showValue)
         {
             Rect knobRect = new Rect(rect.x, rect.y, rect.height, rect.height);
@@ -182,7 +194,7 @@ namespace HandyUtilities
             return e.button == button && e.type == EventType.MouseUp;
         }
 
-        public static Vector2 mousePosition
+        public static Vector3 mousePosition
         {
             get
             {
@@ -193,6 +205,18 @@ namespace HandyUtilities
                 var pos = scene.ScreenPointToRay(mousePos).origin;
                 pos.z = 0;
                 return pos;
+            }
+        }
+
+        public static Ray mouseRay
+        {
+            get
+            {
+                if (SceneView.currentDrawingSceneView == null) return new Ray();
+                var scene = SceneView.currentDrawingSceneView.camera;
+                Vector2 mousePos = Event.current.mousePosition;
+                mousePos.y = scene.pixelHeight - mousePos.y;
+                return scene.ScreenPointToRay(mousePos);
             }
         }
 
