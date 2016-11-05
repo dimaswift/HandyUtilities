@@ -1396,6 +1396,11 @@ namespace HandyUtilities
 
         #region Other
 
+        public static bool Contains(this LayerMask mask, int layer)
+        {
+            return ((1 << layer) & mask) != 0;
+        }
+
         public static void RenameKey<TKey, TValue>(this IDictionary<TKey, TValue> dic, TKey fromKey, TKey toKey)
         {
             TValue value = dic[fromKey];

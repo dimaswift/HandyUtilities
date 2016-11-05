@@ -232,7 +232,7 @@ namespace HandyUtilities
             }
         }
 
-        [MenuItem("HandyUtilities/Apply Selected Prefabs")]
+        [MenuItem("Handy Utilities/Apply Selected Prefabs")]
         public static void SaveSelectedPrefabs(MenuCommand command)
         {
             foreach (var item in Selection.gameObjects)

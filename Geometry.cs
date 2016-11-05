@@ -10,6 +10,78 @@ namespace HandyUtilities
             return Vector3.Cross(ray.direction, point - ray.origin).magnitude;
         }
 
+        public static Vector3 GetClosestPoint(List<Vector3> pointList, Vector3 targetPoint)
+        {
+            var distance = float.MaxValue;
+            Vector3 closest = targetPoint;
+            var count = pointList.Count;
+            for (int i = 0; i < count; i++)
+            {
+                var turn = pointList[i];
+                var d = (turn - targetPoint).sqrMagnitude;
+                if (d < distance)
+                {
+                    distance = d;
+                    closest = turn;
+                }
+            }
+            return closest;
+        }
+
+        public static Vector3 GetClosestPoint(Vector3[] pointList, Vector3 targetPoint)
+        {
+            var distance = float.MaxValue;
+            Vector3 closest = targetPoint;
+            var count = pointList.Length;
+            for (int i = 0; i < count; i++)
+            {
+                var turn = pointList[i];
+                var d = (turn - targetPoint).sqrMagnitude;
+                if (d < distance)
+                {
+                    distance = d;
+                    closest = turn;
+                }
+            }
+            return closest;
+        }
+
+        public static Vector2 GetClosestPoint(Vector2[] pointList, Vector2 targetPoint)
+        {
+            var distance = float.MaxValue;
+            Vector2 closest = targetPoint;
+            var count = pointList.Length;
+            for (int i = 0; i < count; i++)
+            {
+                var turn = pointList[i];
+                var d = (turn - targetPoint).sqrMagnitude;
+                if (d < distance)
+                {
+                    distance = d;
+                    closest = turn;
+                }
+            }
+            return closest;
+        }
+
+        public static Vector2 GetClosestPoint(List<Vector2> pointList, Vector2 targetPoint)
+        {
+            var distance = float.MaxValue;
+            Vector2 closest = targetPoint;
+            var count = pointList.Count;
+            for (int i = 0; i < count; i++)
+            {
+                var turn = pointList[i];
+                var d = (turn - targetPoint).sqrMagnitude;
+                if (d < distance)
+                {
+                    distance = d;
+                    closest = turn;
+                }
+            }
+            return closest;
+        }
+
         public static Vector3 RotatePointAroundPivot(Vector3 point, Vector3 pivot, Vector3 angles)
         {
             Vector3 dir = point - pivot;

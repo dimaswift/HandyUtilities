@@ -63,6 +63,11 @@ namespace HandyUtilities.PoolSystem
             m_initialized = true;
         }
 
+        public T Pick()
+        {
+            return pool.Pick();
+        }
+
         void OnCapacityExceeded()
         {
             if(m_adjustCapacity)

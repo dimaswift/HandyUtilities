@@ -4,7 +4,7 @@ using System.Collections;
 
 public class PrimitiveMeshCreator
 {
-    [MenuItem("HandyUtilities/Primitive Mesh/Create Cube")]
+    [MenuItem("Handy Utilities/Primitive Mesh/Create Cube")]
     public static void CreateCube()
     {
         var cubeObj = GameObject.CreatePrimitive(PrimitiveType.Cube);

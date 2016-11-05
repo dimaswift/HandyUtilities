@@ -107,6 +107,8 @@ namespace HandyUtilities
 
         public float time { get { return m_time; } }
 
+        public float timeNormalized { get { return Helper.Remap(m_time, m_firstFrame.time, m_lastFrame.time, 0f, 1f); } }
+
         public Keyframe lastFrame { get { return m_lastFrame; } }
 
         public bool isAnimating { get { return m_isAnimating; } }
