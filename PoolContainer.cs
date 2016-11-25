@@ -12,8 +12,8 @@ namespace HandyUtilities.PoolSystem
             var assetPath = UnityEditor.AssetDatabase.GetAssetPath(target.gameObject);
 
             var dirPath = System.IO.Path.GetDirectoryName(assetPath);
-            assetPath = dirPath + "/" + "pool_" + target.name + ".asset";
-            pool.prefab = target;
+            assetPath = dirPath + "/" + target.name + "_pool.asset";
+            pool.prefabs = new T[] { target };
             UnityEditor.EditorUtility.SetDirty(pool);
             UnityEditor.AssetDatabase.CreateAsset(pool, assetPath);
             target.pool = UnityEditor.AssetDatabase.LoadAssetAtPath<T2>(assetPath);
@@ -38,15 +38,15 @@ namespace HandyUtilities.PoolSystem
     public abstract class PoolContainer<T> : SOContainer where T : PooledObject<T>
     {
         [SerializeField]
-        protected T m_prefab;
+        protected T[] m_prefabs;
 
         [SerializeField]
         bool m_adjustCapacity = false;
 
-        public T prefab
+        public T[] prefabs
         {
-            get { return m_prefab; }
-            set { m_prefab = value; }
+            get { return m_prefabs; }
+            set { m_prefabs = value; }
         }
 
         [SerializeField]
@@ -59,7 +59,7 @@ namespace HandyUtilities.PoolSystem
         public override void Init()
         {
             if (m_initialized) return;
-            m_pool = new Pool<T>(m_prefab, m_size, OnCapacityExceeded);
+            m_pool = new Pool<T>(m_prefabs, m_size, OnCapacityExceeded);
             m_initialized = true;
         }
 

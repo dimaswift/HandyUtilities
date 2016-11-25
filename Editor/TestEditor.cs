@@ -15,7 +15,7 @@ namespace HandyUtilities.Tests
             if(Instance.pendingTest)
             {
                 Instance.pendingTest = false;
-                var testObject = new GameObject(Instance.typeName + " Test").AddComponent(Helper.GetType(Instance.typeName));
+                var testObject = new GameObject(Instance.typeName).AddComponent(Helper.GetType(Instance.typeName));
                 var so = new SerializedObject(testObject);
                 so.FindProperty("m_target").objectReferenceInstanceIDValue = Instance.targetID;
                 so.ApplyModifiedProperties();

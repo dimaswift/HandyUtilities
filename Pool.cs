@@ -356,6 +356,7 @@ namespace HandyUtilities.PoolSystem
 
     public sealed class Pool<T> : Pool, IEnumerable<T> where T : PooledObject<T>
     {
+        bool m_isDirty;
 
         PooledObject<T>[] m_objects;
 
@@ -440,18 +441,39 @@ namespace HandyUtilities.PoolSystem
             }
         }
 
+        public void Shuffle()
+        {
+            objects.Shuffle();
+        }
+
+        public void Reverse()
+        {
+            System.Array.Reverse(objects);
+        }
+
         public void Reset()
         {
+            if (!m_isDirty) return;
             for (int i = 0; i < objects.Length; i++)
             {
                 objects[i].ResetObject();
             }
             isEmpty = false;
             m_order = 0;
+            m_isDirty = false;
+        }
+
+        public void Prepare()
+        {
+            for (int i = 0; i < objects.Length; i++)
+            {
+                objects[i].Prepare();
+            }
         }
 
         public T PickReadyOne()
         {
+            m_isDirty = true;
             var obj = m_objects[m_order].Object;
             SkipNext();
             int c = 0;
@@ -473,8 +495,26 @@ namespace HandyUtilities.PoolSystem
 
         public T Pick()
         {
+            m_isDirty = true;
             var obj = m_objects[m_order].Object;
             SkipNext();
+            obj.Pick();
+            return obj.Object;
+        }
+
+        public T Pick(System.Predicate<T> filter)
+        {
+            m_isDirty = true;
+            var obj = m_objects[m_order].Object;
+            int s = m_size;
+            while(!filter(obj) && s > 0)
+            {
+                s--;
+                SkipNext();
+                obj = m_objects[m_order].Object;
+                if (s <= 0)
+                    return null;
+            }
             obj.Pick();
             return obj.Object;
         }

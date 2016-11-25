@@ -51,6 +51,11 @@
             return !isActive;
         }
 
+        public virtual void Prepare()
+        {
+
+        }
+
         public virtual void ResetObject()
         {
             SetActive(false);

@@ -1444,6 +1444,15 @@ namespace HandyUtilities
             rect.anchorMin = pivot;
         }
 
+        public static Vector3 GetWorldPosition(this RectTransform rect, Camera cam)
+        {
+            return cam.ScreenToWorldPoint(RectTransformUtility.WorldToScreenPoint(null, rect.position));
+        }
+
+        public static Vector3 GetWorldPosition(this RectTransform rect)
+        {
+            return Camera.main.ScreenToWorldPoint(RectTransformUtility.WorldToScreenPoint(null, rect.position));
+        }
 
         #endregion RectTransform
 
