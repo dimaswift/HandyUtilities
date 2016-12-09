@@ -94,7 +94,7 @@ public abstract class GameTemplate : MonoBehaviour
         LoadSave();
         LoadComponents();
         onGameLoaded.Invoke();
-        userData.attemptsCount++;
+
         UI.Init();
         sound.Init();
 
@@ -141,7 +141,7 @@ public abstract class GameTemplate : MonoBehaviour
 
     public virtual void StartRun()
     {
-        userData.attemptsCount++;
+
         m_instance.m_secondLifeUsed = false;
         onRunStart.Invoke();
     }
@@ -165,19 +165,11 @@ public abstract class GameTemplate : MonoBehaviour
         SaveGame();
     }
 
-    public virtual bool IsCharacterLocked(int index)
-    {
-        return userData.characterLockData[index];
-    }
 
-    public virtual void CheckHighScore(int record)
+    public class UserData
     {
-        if (userData.highscore < record)
-        {
-            onNewRecord.Invoke(record);
-            userData.highscore = record;
-            SaveGame();
-        }
+        public bool mute;
+        public int coins;
     }
 
     public virtual void SaveGame()

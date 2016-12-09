@@ -10,6 +10,7 @@ namespace HandyUtilities
         {
             base.OnInspectorGUI();
             var data = target as PositionTrackerData;
+            if (data == null || data.positions == null) return;
             EditorGUILayout.LabelField("Points: " + data.positions.Count);
             if(GUILayout.Button("Build"))
             {
@@ -17,8 +18,7 @@ namespace HandyUtilities
                 root.transform.position = data.startPoint;
                 for (int i = 0; i < data.positions.Count; i++)
                 {
-                    var gizmo = GameObject.CreatePrimitive(data.gizmoType);
-                    gizmo.transform.localScale = new Vector3(data.gizmoSize, data.gizmoSize, data.gizmoSize);
+                    var gizmo = Instantiate(data.gizmo);
                     gizmo.transform.SetParent(root.transform);
                     gizmo.transform.position = data.positions[i];
                     gizmo.transform.eulerAngles = data.positions[i];

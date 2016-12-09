@@ -6,8 +6,8 @@ namespace HandyUtilities
     [CreateAssetMenu(menuName = "Handy Utilities/Position Tracker Data")]
     public class PositionTrackerData : ScriptableObject
     {
-        public float gizmoSize = .1f;
-        public PrimitiveType gizmoType = PrimitiveType.Sphere;
+        public int maxCount = 1000;
+        public GameObject gizmo;
         [HideInInspector]
         public List<Vector3> positions;
         [HideInInspector]
@@ -28,6 +28,8 @@ namespace HandyUtilities
 
         public void AddSnapshot(Transform target)
         {
+            if (positions.Count > maxCount)
+                return;
             positions.Add(target.position);
             eulers.Add(target.eulerAngles);
         }
