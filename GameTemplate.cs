@@ -11,14 +11,12 @@ public abstract class GameTemplate : MonoBehaviour
     public string shareText = "I scored {0} in Zig Zag Rush! -place link here-";
     public string faceBookPage = "www.facebook.com";
  
-    [SerializeField]
-    UIManager m_UIManager;
+
     [SerializeField]
     SoundManager m_soundManager;
-#if UNITY_PURCHASER
+
     [SerializeField]
-    Purchaser m_purchaser;
-#endif
+    IAPManager m_IAPManager;
 
     // Events:
 
@@ -47,10 +45,8 @@ public abstract class GameTemplate : MonoBehaviour
     protected const string USER_DATA_PREFS_KEY = "userdata";
 
     // Puplic properties:
-#if UNITY_PURCHASER
-    public static Purchaser purchaser { get { return m_instance.m_purchaser; } }
-#endif
 
+    public static IAPManager IAPManager { get { return m_instance.m_IAPManager; } }
     public static UserData userData { get { return m_instance.m_userData; } }
     public static SoundManager sound { get { return m_instance.m_soundManager; } }
     public static UnityEvent onGameOver { get { return m_instance.m_onGameOver; } }
@@ -60,7 +56,6 @@ public abstract class GameTemplate : MonoBehaviour
     public static UnityEvent onRunStart { get { return m_instance.m_onRunStart; } }
     public static UnityEvent onContinue { get { return m_instance.m_onRetryPressed; } }
     public static UnityEvent onGameLoaded { get { return m_instance.m_onGameLoaded; } }
-    public static UIManager UI { get { return m_instance.m_UIManager; } }
     public static GameTemplate instance { get { return m_instance; } }
     public static string screenShotPath { get; private set; }
 
@@ -94,8 +89,6 @@ public abstract class GameTemplate : MonoBehaviour
         LoadSave();
         LoadComponents();
         onGameLoaded.Invoke();
-
-        UI.Init();
         sound.Init();
 
         Social.localUser.Authenticate(OnAuthenticate);
@@ -108,10 +101,7 @@ public abstract class GameTemplate : MonoBehaviour
 
     public virtual void LoadComponents()
     {
-#if UNITY_PURCHASER
-        m_purchaser.Init();
-#endif
-        m_UIManager.Init();
+        m_IAPManager.Init(new IIAPProduct[0]);
         m_soundManager.Init();
     }
 

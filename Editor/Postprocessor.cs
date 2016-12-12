@@ -14,7 +14,7 @@ public class Postprocessor : AssetPostprocessor
         if(assetPath.Contains("/Sprites/") || assetPath.Contains("/UI/"))
         {
             var imp = assetImporter as TextureImporter;
-            imp.textureType = TextureImporterType.Advanced;
+            imp.textureType = TextureImporterType.Default;
             imp.spriteImportMode = SpriteImportMode.Multiple;
             imp.npotScale = TextureImporterNPOTScale.None;
             imp.alphaIsTransparency = true;

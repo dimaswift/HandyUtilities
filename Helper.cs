@@ -179,24 +179,30 @@ namespace HandyUtilities
     public sealed class Grid
     {
         [SerializeField]
-        float[] _rows = new float[16];
+        float[] m_rows = new float[16];
 
         [SerializeField]
-        float[] _columns = new float[16];
+        float[] m_columns = new float[16];
 
         [SerializeField]
-        float _size = 1f;
+        float m_size = 1f;
 
-        public float size { get { return _size; } }
+        public float size { get { return m_size; } }
 
-        public float columnCount { get { return _columns.Length; } }
+        public float columnCount { get { return m_columns.Length; } }
 
-        public float rowCount { get { return _rows.Length; } }
+        public float rowCount { get { return m_rows.Length; } }
+
+        public Grid()
+        {
+            m_rows = new float[0];
+            m_columns = new float[0];
+        }
 
         public Grid(int columns, int rows, float size, Vector2 origin)
         {
-            _rows = new float[rows];
-            _columns = new float[columns];
+            m_rows = new float[rows];
+            m_columns = new float[columns];
             Recalculate(columns, rows, size, origin);
         }
 
@@ -204,67 +210,67 @@ namespace HandyUtilities
         {
             columns = Mathf.Clamp(columns, 3, 512);
             rows = Mathf.Clamp(rows, 3, 512);
-            _size = size;
-            if (columns != _columns.Length)
-                System.Array.Resize(ref _columns, columns);
-            if (rows != _rows.Length)
-                System.Array.Resize(ref _rows, rows);
-            for (int i = 0; i < _rows.Length; i++)
+            m_size = size;
+            if (columns != m_columns.Length)
+                System.Array.Resize(ref m_columns, columns);
+            if (rows != m_rows.Length)
+                System.Array.Resize(ref m_rows, rows);
+            for (int i = 0; i < m_rows.Length; i++)
             {
-                _rows[i] = origin.y + i * size;
+                m_rows[i] = origin.y + i * size;
             }
-            for (int i = 0; i < _columns.Length; i++)
+            for (int i = 0; i < m_columns.Length; i++)
             {
-                _columns[i] = origin.x + i * size;
+                m_columns[i] = origin.x + i * size;
             }
         }
 
         public float GetRow(int i)
         {
-            if (i < _rows.Length)
-                return _rows[i];
+            if (i < m_rows.Length)
+                return m_rows[i];
             else return 0;
         }
 
         public float GetColumn(int i)
         {
-            if (i < _columns.Length)
-                return _columns[i];
+            if (i < m_columns.Length)
+                return m_columns[i];
             else return 0;
         }
 
         public float GetClosetRow(float row)
         {
-            row -= size * .5f;
+        //    row -= size * .5f;
             var xDist = float.MaxValue;
             int closestX = -1;
-            for (int x = 0; x < _rows.Length; x++)
+            for (int x = 0; x < m_rows.Length; x++)
             {
-                var xd = Mathf.Abs(_rows[x] - row);
+                var xd = Mathf.Abs(m_rows[x] - row);
                 if (xd < xDist)
                 {
                     closestX = x;
                     xDist = xd;
                 }
             }
-            return _rows[closestX];
+            return m_rows[closestX];
         }
 
         public float GetClosetColumn(float col)
         {
-            col -= size * .5f;
+        //    col -= size * .5f;
             var yDist = float.MaxValue;
             int closestY = -1;
-            for (int y = 0; y < _columns.Length; y++)
+            for (int y = 0; y < m_columns.Length; y++)
             {
-                var xd = Mathf.Abs(_columns[y] - col);
+                var xd = Mathf.Abs(m_columns[y] - col);
                 if (xd < yDist)
                 {
                     closestY = y;
                     yDist = xd;
                 }
             }
-            return _columns[closestY];
+            return m_columns[closestY];
         }
         public Vector2 GetPoint(Vector2 point)
         {

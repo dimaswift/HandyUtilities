@@ -941,7 +941,7 @@ namespace HandyUtilities
         public static int BetweenCount<T>(this List<T> list, int a, int b, bool clockwise)
         {
             int result = 0;
-            a = clockwise ? list.NextIndex(a) : list.PreviousIndex(a);
+          //  a = clockwise ? list.NextIndex(a) : list.PreviousIndex(a);
             while (a != b)
             {
                 result++;
@@ -952,7 +952,7 @@ namespace HandyUtilities
         public static int BetweenCount<T>(this T[] list, int a, int b, bool clockwise)
         {
             int result = 0;
-            a = clockwise ? list.NextIndex(a) : list.PreviousIndex(a);
+          //  a = clockwise ? list.NextIndex(a) : list.PreviousIndex(a);
             while (a != b)
             {
                 result++;
