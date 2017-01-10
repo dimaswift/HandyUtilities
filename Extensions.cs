@@ -471,6 +471,7 @@ namespace HandyUtilities
         //    mesh.uv = uv;
         //    mf.SetMesh(mesh);
         //}
+
         public static void AddBone(this SkinnedMeshRenderer skin, Vector3 point)
         {
             var bones = new List<Transform>(skin.bones);
@@ -1535,6 +1536,32 @@ namespace HandyUtilities
         }
 
         #endregion Conf Joint
+
+        #region Texture 2D
+
+        public static void Fill(this Texture2D texture, int x, int y, Color32 replacementColor)
+        {
+            var target = texture.GetPixel(x, y);
+            Flood(texture, target, replacementColor, x, y, texture.width, texture.height);
+            texture.Apply();
+        }
+
+        static void Flood(this Texture2D texture, Color target, Color replacement, int x, int y, int w, int h)
+        {
+            if (x < 0 || x >= w || y < 0 || y >= h) return;
+            if (target == replacement) return;
+            var color = texture.GetPixel(x, y);
+            if (color != target) return;
+            texture.SetPixel(x, y, replacement);
+
+            Flood(texture, target, replacement, x, y - 1, w, h);
+            Flood(texture, target, replacement, x - 1, y, w, h);
+            Flood(texture, target, replacement, x + 1, y, w, h);
+            Flood(texture, target, replacement, x, y + 1, w, h);
+        }
+
+
+        #endregion Texture 2D
     }
 
 }

@@ -6,9 +6,6 @@ using HandyUtilities.PoolSystem;
 public class RunnablePathChunk : PooledObject<RunnablePathChunk>, IPathChunk
 {
     [SerializeField]
-    AreaPool m_pool;
-
-    [SerializeField]
     Transform m_connector;
 
     public Transform[] playerWayPoints { get; private set; }
@@ -21,11 +18,11 @@ public class RunnablePathChunk : PooledObject<RunnablePathChunk>, IPathChunk
     {
         get
         {
-            return m_pool;
+            return null;
         }
         set
         {
-            m_pool = value as AreaPool;
+            
         }
     }
 
