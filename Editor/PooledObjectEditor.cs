@@ -8,11 +8,12 @@ namespace HandyUtilities
         [MenuItem("Handy Utilities/Create Pooled Object Script")]
         static void Open()
         {
-            NamingTool.Open(Create, "Enter Pooled Object name:","", "MyPooledObject", "Create");
+            ConfirmationTool.OpenWithArguments("Enter Pooled Object name:", "Create", Create, new ConfirmationTool.Label("", "MyPooledObject"));
         }
 
-        static void Create(string name)
+        static void Create(object[] args)
         {
+            string name = (string) args[0];
             var script = string.Format(@"using UnityEngine;
 using System.Collections;
 using HandyUtilities;
