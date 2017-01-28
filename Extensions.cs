@@ -14,6 +14,11 @@ namespace HandyUtilities
             return s[0].ToString().ToUpper() + s.Substring(1);
         }
 
+        public static string ToLowerFirst(this string s)
+        {
+            return s[0].ToString().ToLower() + s.Substring(1);
+        }
+
         #endregion Strings
 
         #region Transform

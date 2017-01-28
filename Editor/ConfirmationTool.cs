@@ -24,6 +24,7 @@ namespace HandyUtilities
             w.m_okay = okayMessage;
             w.SetArguments(args);
             w.Show(true);
+          
             return w;
         }
 
@@ -31,7 +32,7 @@ namespace HandyUtilities
         {
             this.m_args = args;
             m_results = new object[args.Length];
-            minSize = new Vector2(300 + (16 * args.Length), 90);
+            minSize = new Vector2(300, 60 + (16 * args.Length));
             maxSize = minSize;
         }
 

@@ -41,6 +41,32 @@ namespace HandyUtilities
             }
         }
 
+        public static string FindFolderInProject(string folderName)
+        {
+            string result;
+            FindFolderInProject(Helper.relativeDataPath, folderName, out result);
+            return result;
+        }
+
+        static bool FindFolderInProject(string rootFolder, string folderName, out string result)
+        {
+            var folders = AssetDatabase.GetSubFolders(rootFolder);
+            result = "";
+            foreach (var item in folders)
+            {
+                if (item.EndsWith("/" + folderName))
+                {
+                    result = item;
+                    return true;
+                } 
+                if(FindFolderInProject(item, folderName, out result))
+                {
+                    return true;
+                }
+            }
+            return false;
+        }
+
         public static void FocusOnPoint(Vector3 point, float size = 1f)
         {
             var s = Selection.activeGameObject;

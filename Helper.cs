@@ -430,9 +430,12 @@ namespace HandyUtilities
     {
         #region Properties
 
-        public static bool isMouseWheelScrolling { get { return Input.GetAxis("Mouse ScrollWheel") != 0; } }
-        public static float mouseWheelDelta { get { return Input.GetAxis("Mouse ScrollWheel"); } }
+        const string MouseScrollWheel = "Mouse ScrollWheel";
+
+        public static bool isMouseWheelScrolling { get { return Input.GetAxis(MouseScrollWheel) != 0; } }
+        public static float mouseWheelDelta { get { return Input.GetAxis(MouseScrollWheel); } }
         public static bool isPointerOverGUI { get { return EventSystem.current.IsPointerOverGameObject(); } }
+        public static string relativeDataPath { get { return ConvertLoRelativePath(Application.dataPath); } }
 
         #endregion
 
@@ -458,6 +461,35 @@ namespace HandyUtilities
         #endregion Initilization
 
         #region Static Methods 
+
+
+        public static byte[] GetBytes(string base64)
+        {
+            return System.Convert.FromBase64String(base64);
+        }
+
+        public static string GetBase64(byte[] data)
+        {
+            return System.Convert.ToBase64String(data);
+        }
+
+        public static string CalculateMD5Hash(string input)
+        {
+            var md5 = System.Security.Cryptography.MD5.Create();
+
+            byte[] inputBytes = System.Text.Encoding.ASCII.GetBytes(input);
+
+            byte[] hash = md5.ComputeHash(inputBytes);
+
+            var sb = new System.Text.StringBuilder();
+
+            for (int i = 0; i < hash.Length; i++)
+            {
+                sb.Append(hash[i].ToString("x2"));
+            }
+
+            return sb.ToString();
+        }
 
         public static void DirectoryCopy(string sourceDirName, string destDirName, bool copySubDirs)
         {

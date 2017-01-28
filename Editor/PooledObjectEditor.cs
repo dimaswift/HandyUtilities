@@ -57,7 +57,7 @@ public class {0}Pool : PoolContainer<{0}>
             var dir = Application.dataPath + "/Scripts";
             if (!System.IO.Directory.Exists(dir))
             {
-                dir = EditorUtility.OpenFolderPanel("Select Folder", Application.dataPath, Application.dataPath);
+                dir = EditorUtility.OpenFilePanel("Select Folder", Application.dataPath, Application.dataPath);
             }
 
             if(!string.IsNullOrEmpty(dir))

@@ -28,7 +28,7 @@ namespace HandyUtilities.Tests
         [MenuItem("CONTEXT/Component/Create Test")]
         public static void CreateTest(MenuCommand command)
         {
-            var type = command.context.GetType().Name;
+            var type = command.context.GetType().FullName;
      
             var scriptsFolder = Application.dataPath + "/Scripts";
        
