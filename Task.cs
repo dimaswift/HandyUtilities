@@ -3,11 +3,14 @@ using System.Collections.Generic;
 
 namespace HandyUtilities
 {
+    public delegate void RoutineHandler(float normalizedTime);
+
     public static class Invoker
     {
         static TaskInvoker m_invoker;
 
         static List<Task> m_tasks = new List<Task>(100);
+        static List<Routine> m_routines = new List<Routine>(100);
 
         public struct Task
         {
@@ -21,6 +24,16 @@ namespace HandyUtilities
             public float rate;
             public bool paused;
             public bool loopStarted;
+        }
+
+        public struct Routine
+        {
+            public RoutineHandler method;
+            public float currentTime;
+            public float duration;
+            public bool finished;
+            public int id;
+            public bool ignoreTimeScale;
         }
 
         [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.BeforeSceneLoad)]
@@ -120,6 +133,18 @@ namespace HandyUtilities
             }
         }
 
+        public static void CancelRoutine(int id)
+        {
+            for (int i = 0; i < m_routines.Count; i++)
+            {
+                if (m_routines[i].id == id)
+                {
+                    m_routines.RemoveAt(i);
+                    break;
+                }
+            }
+        }
+
         public static void Cancel(System.Action action)
         {
             for (int i = 0; i < m_tasks.Count; i++)
@@ -154,7 +179,7 @@ namespace HandyUtilities
 
         public static int Add(System.Action action, float delay, bool ignoreTimeScale = false)
         {
-            var id = GetnerateUniqueID();
+            var id = GenerateUniqueID();
             m_tasks.Add(new Task()
             {
                 id = id,
@@ -168,9 +193,49 @@ namespace HandyUtilities
             return id;
         }
 
+        public static Routine GetRoutine(RoutineHandler r)
+        {
+            var c = m_routines.Count;
+            for (int i = 0; i < c; i++)
+            {
+                if (m_routines[i].method == r)
+                    return m_routines[i];
+            }
+            return default(Routine);
+        }
+
+        public static int StartRoutine(RoutineHandler routine, float duration, bool ignoreTimeScale = false)
+        {
+            var id = GenerateUniqueID();
+            if (duration == 0)
+            {
+                routine(1);
+                return id;
+            }
+            var current = 0f;
+            var r = GetRoutine(routine);
+            if (r.id != 0)
+            {
+                current = duration - r.currentTime;
+                m_routines.Remove(r);
+            }
+            m_routines.Add(new Routine()
+            {
+                id = id,
+                method = routine,
+                currentTime = current,
+                finished = false,
+                duration = duration,
+                ignoreTimeScale = ignoreTimeScale
+            });
+            return id;
+        }
+
+
+
         public static int AddLoop(System.Action action, float delay, float rate, bool ignoreTimeScale = false)
         {
-            var id = GetnerateUniqueID();
+            var id = GenerateUniqueID();
             m_tasks.Add(new Task()
             {
                 id = id,
@@ -186,27 +251,27 @@ namespace HandyUtilities
             return id;
         }
 
-        static int GetnerateUniqueID()
+        static int GenerateUniqueID()
         {
             var id = Random.Range(0, int.MaxValue - 1);
             for (int i = 0; i < m_tasks.Count; i++)
             {
                 if (m_tasks[i].id == id)
-                    return GetnerateUniqueID();
+                    return GenerateUniqueID();
             }
             return id;
         }
 
-        public static void Update()
+        static void ProcessTasks()
         {
             var count = m_tasks.Count;
             bool invoked = false;
             for (int i = 0; i < count; i++)
             {
                 var task = m_tasks[i];
-                if(!task.paused)
+                if (!task.paused)
                     task.currentTime += task.ignoreTimeScale ? Time.unscaledDeltaTime : Time.deltaTime;
-                if(task.currentTime >= task.delayTime)
+                if (task.currentTime >= task.delayTime)
                 {
                     if (task.loop)
                     {
@@ -223,14 +288,47 @@ namespace HandyUtilities
                         task.invoked = true;
                     }
                     task.action();
-                   
+
                 }
                 m_tasks[i] = task;
             }
-            if(invoked)
+            if (invoked)
             {
                 m_tasks.RemoveAll(t => t.invoked);
             }
+        }
+
+        static void ProcessRoutines()
+        {
+            var count = m_routines.Count;
+            bool finished = false;
+       
+            for (int i = 0; i < count; i++)
+            {
+                var routine = m_routines[i];
+                var d = routine.ignoreTimeScale ? Time.unscaledDeltaTime : Time.deltaTime;
+                var t = routine.currentTime / routine.duration;
+               
+                if(t >= 1)
+                {
+                    finished = true;
+                    routine.finished = true;
+                    routine.method(1);
+                }
+                else routine.method(t);
+                routine.currentTime += d;
+                m_routines[i] = routine;
+            }
+            if (finished)
+            {
+                m_routines.RemoveAll(t => t.finished);
+            }
+        }
+
+        public static void Update()
+        {
+            ProcessTasks();
+            ProcessRoutines();
         }
     }
 

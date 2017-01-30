@@ -1441,6 +1441,21 @@ namespace HandyUtilities
             rect.pivot = pivot;
         }
 
+        public static Vector2 GetLocalPivotPoint(this RectTransform rect, float scale = 1f)
+        {
+            return Vector3.Scale(rect.sizeDelta, rect.pivot);
+        }
+
+        public static Vector2 GetPivotPoint(this RectTransform rect, float scale = 1f)
+        {
+            return rect.position + Vector3.Scale(rect.sizeDelta * scale, rect.pivot - rect.anchorMax);
+        }
+
+        public static Vector2 GetAnchoredPivotPoint(this RectTransform rect, float scale = 1f)
+        {
+            return rect.anchoredPosition + Vector2.Scale(rect.sizeDelta * scale, rect.pivot);
+        }
+
         public static void SetAnchorFromSprite(this RectTransform rect, Sprite sprite)
         {
             var pivot = sprite.pivot;
