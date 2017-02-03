@@ -137,6 +137,21 @@ namespace HandyUtilities
             targetPosition.z = target.position.z;
             target.position = Vector3.MoveTowards(target.position, targetPosition, speed);
         }
+
+        public static string GetPath(this Transform t, Transform root)
+        {
+            var parent = t.parent;
+            string result = "";
+            while (parent && t != root)
+            {
+                result = "/" + result.Insert(0, t.name);
+                t = parent;
+                parent = parent.parent;
+            }
+            if (result.StartsWith("/"))
+                result = result.Remove(0, 1);
+            return result;
+        }
         public static void SetScale(this Transform t, float scale)
         {
             t.localScale = new Vector3(scale, scale, scale);
@@ -1387,6 +1402,17 @@ namespace HandyUtilities
         #endregion
 
         #region MonoBehaviour
+
+        public static string GetScriptPath(this MonoBehaviour b)
+        {
+#if UNITY_EDITOR
+            var ms = UnityEditor.MonoScript.FromMonoBehaviour(b);
+            var scriptFilePath = UnityEditor.AssetDatabase.GetAssetPath(ms);
+            return scriptFilePath;
+#else
+             return "";
+#endif
+        }
 
         public static T FindComponentInChild<T>(this MonoBehaviour t, string name)
         {

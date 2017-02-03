@@ -41,6 +41,20 @@ namespace HandyUtilities
             }
         }
 
+        public static void SendMessage(GameObject target, string methodName)
+        {
+            foreach (var item in target.GetComponents<Component>())
+            {
+                MethodInfo tMethod = item.GetType().GetMethod(methodName);
+                if (tMethod != null)
+                {
+                    tMethod.Invoke(item, null);
+                    break;
+                }
+            }
+           
+        }
+
         public static string FindFolderInProject(string folderName)
         {
             string result;
