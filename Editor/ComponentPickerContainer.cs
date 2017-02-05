@@ -13,7 +13,7 @@ namespace HandyUtilities
         public string newTypeName;
         public int targetID;
         public string elementsClassString;
-        public List<ComponentCell> cells = new List<ComponentCell>();
+        public ComponentContainer root;
         public Class pendingClass;
         public OperationType operationType;
         public enum OperationType { Create, Update }
