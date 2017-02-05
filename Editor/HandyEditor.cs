@@ -395,7 +395,6 @@ namespace HandyUtilities
 
         public static void DrawBounds(Bounds bounds)
         {
-            var handleSize = HandleUtility.GetHandleSize(bounds.center) * .1f;
             var c = bounds.center;
             var e = bounds.extents;
             var p0 = new Vector3(c.x + e.x, c.y + e.y, c.z + e.z);

@@ -36,7 +36,6 @@ namespace HandyUtilities
         {
             for (int i = 0; i < m_poolSize; i++)
             {
-                var pool = m_prefabs.Random();
                 var c = Instantiate(m_prefabs.Random());
                 c.Init();
                 c.SetActive(false);

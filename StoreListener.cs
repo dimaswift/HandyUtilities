@@ -21,6 +21,10 @@
             m_storeListener.onProductPurchasedSucceed += onPurchaseSucceed;
             m_storeListener.onProductPurchasedFailed += onPurchaseFailed;
             m_storeListener.onPurchasesRestored += onPurchasesRestored;
+#else
+            onPurchaseSucceed += (s) => { Debug.Log("UNITY_PURCHASING is not enabled."); };
+            onPurchaseFailed += (s) => { Debug.Log("UNITY_PURCHASING is not enabled."); };
+            onPurchasesRestored += (s) => { Debug.Log("UNITY_PURCHASING is not enabled."); };
 #endif
         }
 
