@@ -11,13 +11,11 @@ namespace HandyUtilities
         System.Action<List<ComponentCell>, GameObject> onSubmit;
         float cellSize = 30;
         GUIStyle typeLabel;
-        GameObject root;
         float scrollHeight;
 
         public static void Open(System.Action<List<ComponentCell>, GameObject> onSubmit, GameObject root, Class elementsClass = null)
         {
             var w = GetWindow<ComponentPicker>(false, "Select Elements you want", true);
-            w.root = root;
             w.Show(true);
             w.minSize = new Vector2(600, 600);
             w.maxSize = new Vector2(1600, 1600);
@@ -263,6 +261,7 @@ namespace HandyUtilities
         public int depth;
         public bool show = true;
         public List<ComponentCell> components;
+        [System.NonSerialized]
         public List<ComponentContainer> children;
         public GameObject gameObject { get { return EditorUtility.InstanceIDToObject(gameObjectId) as GameObject; } }
         int gameObjectId;
@@ -281,7 +280,7 @@ namespace HandyUtilities
             foreach (var c in allComponents)
             {
                 if(c is CanvasRenderer == false)
-                    components.Add(new ComponentCell(c, gameObject));
+                    components.Add(new ComponentCell(c, gameObject)); 
             }
         }
     }
@@ -295,7 +294,7 @@ namespace HandyUtilities
         public string objectName;
         public string fieldName;
         public string type;
-        public Color color;
+
 
         public ComponentCell(Component c, GameObject screen)
         {
