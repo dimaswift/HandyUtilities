@@ -356,20 +356,29 @@ namespace HandyUtilities.PoolSystem
 
     public sealed class Pool<T> : Pool, IEnumerable<T> where T : PooledObject<T>
     {
+        bool m_isDirty;
 
         PooledObject<T>[] m_objects;
 
         public PooledObject<T>[] objects { get { return m_objects; } }
 
-        public Pool(T source, int size)
+        System.Action m_onCapacityExceeded;
+
+        PooledObject<T>[] m_originals;
+
+        Transform m_container;
+
+        public Pool(T source, int size, System.Action onCapacityExceeded)
         {
-            var container = new GameObject(source.name + "_pool").transform;
+            m_originals = new PooledObject<T>[] { source };
+            m_onCapacityExceeded = onCapacityExceeded;
+            m_container = new GameObject(source.name + "_pool").transform;
             m_objects = new PooledObject<T>[size];
             m_size = size;
             for (var i = 0; i < size; i++)
             {
                 var obj = Object.Instantiate(source.gameObject);
-                obj.transform.SetParent(container);
+                obj.transform.SetParent(m_container);
                 var ip = obj.GetComponent<PooledObject<T>>();
                 m_objects[i] = ip;
                 ip.Init();
@@ -377,16 +386,18 @@ namespace HandyUtilities.PoolSystem
             }
         }
 
-        public Pool(T[] source, int size)
+        public Pool(T[] source, int size, System.Action onCapacityExceeded)
         {
-            var container = new GameObject(source[0].name + "_pool").transform;
+            m_originals = source;
+            m_onCapacityExceeded = onCapacityExceeded;
+            m_container = new GameObject(source[0].name + "_pool").transform;
             m_objects = new PooledObject<T>[size];
             m_size = size;
             int index = 0;
             for (var i = 0; i < size; i++)
             {
                 var obj = Object.Instantiate(source[index].gameObject);
-                obj.transform.SetParent(container);
+                obj.transform.SetParent(m_container);
                 var ip = obj.GetComponent<PooledObject<T>>();
                 m_objects[i] = ip;
                 ip.Init();
@@ -430,24 +441,45 @@ namespace HandyUtilities.PoolSystem
             }
         }
 
+        public void Shuffle()
+        {
+            objects.Shuffle();
+        }
+
+        public void Reverse()
+        {
+            System.Array.Reverse(objects);
+        }
+
         public void Reset()
         {
+            if (!m_isDirty) return;
             for (int i = 0; i < objects.Length; i++)
             {
                 objects[i].ResetObject();
             }
             isEmpty = false;
             m_order = 0;
+            m_isDirty = false;
+        }
+
+        public void Prepare()
+        {
+            for (int i = 0; i < objects.Length; i++)
+            {
+                objects[i].Prepare();
+            }
         }
 
         public T PickReadyOne()
         {
-            var obj = NextItemToPick();
+            m_isDirty = true;
+            var obj = m_objects[m_order].Object;
             SkipNext();
             int c = 0;
             while (!obj.IsReadyToPick())
             {
-                obj = NextItemToPick();
+                obj = m_objects[m_order].Object;
                 SkipNext();
                 c++;
                 if (c >= m_size)
@@ -463,15 +495,28 @@ namespace HandyUtilities.PoolSystem
 
         public T Pick()
         {
-            var obj = NextItemToPick();
+            m_isDirty = true;
+            var obj = m_objects[m_order].Object;
             SkipNext();
             obj.Pick();
             return obj.Object;
         }
 
-        public T NextItemToPick()
+        public T Pick(System.Predicate<T> filter)
         {
-            return m_objects[m_order].Object;
+            m_isDirty = true;
+            var obj = m_objects[m_order].Object;
+            int s = m_size;
+            while(!filter(obj) && s > 0)
+            {
+                s--;
+                SkipNext();
+                obj = m_objects[m_order].Object;
+                if (s <= 0)
+                    return null;
+            }
+            obj.Pick();
+            return obj.Object;
         }
 
         public void SkipNext()
@@ -479,18 +524,36 @@ namespace HandyUtilities.PoolSystem
             m_order++;
             if (m_order > m_size - 1)
             {
-                m_order = 0;
+                m_onCapacityExceeded();
+                if (m_order > m_size - 1)
+                    m_order = 0;
+            }
+        }
+
+        public void IncreaseCapacity(int amount = 1)
+        {
+            var oldSize = m_objects.Length;
+            System.Array.Resize(ref m_objects, oldSize + amount);
+            m_size += amount;
+            for (int i = oldSize - 1; i < m_size; i++)
+            {
+                var obj = Object.Instantiate(m_originals.Random().gameObject);
+                obj.transform.SetParent(m_container);
+                var ip = obj.GetComponent<PooledObject<T>>();
+                m_objects[i] = ip;
+                ip.Init();
+                ip.SetActive(false);
             }
         }
 
         public T NextReadyItemToPick()
         {
-            var obj = NextItemToPick();
+            var obj = m_objects[m_order].Object;
             var c = 0;
             while (!obj.IsReadyToPick())
             {
                 SkipNext();
-                obj = NextItemToPick();
+                obj = m_objects[m_order].Object;
                 c++;
                 if (c >= m_size)
                 {

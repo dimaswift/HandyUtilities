@@ -16,9 +16,30 @@ namespace HandyUtilities
         void DrawEditorIcon(Rect rect);
     }
 
+    public class RigidbodyPositionSaver : PositionSaver
+    {
+        Rigidbody m_body;
+
+        public Rigidbody body { get { return m_body; } }
+
+        public RigidbodyPositionSaver(Rigidbody body) : base(body.transform)
+        {
+            m_body = body;
+        }
+
+        public override void Restore()
+        {
+            m_body.isKinematic = true;
+            base.Restore();
+            m_body.isKinematic = false;
+        }
+    }
+
     public class Rigidbody2DPositionSaver : PositionSaver
     {
         Rigidbody2D m_body;
+
+        public Rigidbody2D body { get { return m_body; } }
 
         public Rigidbody2DPositionSaver(Rigidbody2D body) : base(body.transform)
         {
@@ -37,6 +58,13 @@ namespace HandyUtilities
     {
         Vector3 m_localEuler, m_localPos, m_localScale;
         Transform m_transform, m_parent;
+
+        public Vector3 localEuler { get { return m_localEuler; } }
+        public Vector3 localPos { get { return m_localPos; } }
+        public Vector3 localScale { get { return m_localScale; } }
+
+        public Transform transform { get { return m_transform; } }
+        public Transform parent { get { return m_parent; } }
 
         public PositionSaver(Transform transform)
         {
@@ -75,6 +103,14 @@ namespace HandyUtilities
         bool m_isAnimating, m_inited;
         Keyframe m_lastFrame, m_firstFrame;
 
+        public Keyframe firstFrame { get { return m_firstFrame; } }
+
+        public float time { get { return m_time; } }
+
+        public float timeNormalized { get { return Helper.Remap(m_time, m_firstFrame.time, m_lastFrame.time, 0f, 1f); } }
+
+        public Keyframe lastFrame { get { return m_lastFrame; } }
+
         public bool isAnimating { get { return m_isAnimating; } }
 
         public CurvedAnimation() { }
@@ -87,11 +123,27 @@ namespace HandyUtilities
             Init();
         }
 
-        void Init()
+        public void Init()
         {
             m_lastFrame = m_curve.keys.LastItem();
             m_firstFrame = m_curve.keys[0];
             m_inited = true;
+        }
+
+        public void Stop()
+        {
+            m_isAnimating = false;
+            m_time = m_firstFrame.time;
+        }
+
+        public void Pause()
+        {
+            m_isAnimating = false;
+        }
+
+        public void Resume()
+        {
+            m_isAnimating = true;
         }
 
         public void Start()
@@ -127,24 +179,30 @@ namespace HandyUtilities
     public sealed class Grid
     {
         [SerializeField]
-        float[] _rows = new float[16];
+        float[] m_rows = new float[16];
 
         [SerializeField]
-        float[] _columns = new float[16];
+        float[] m_columns = new float[16];
 
         [SerializeField]
-        float _size = 1f;
+        float m_size = 1f;
 
-        public float size { get { return _size; } }
+        public float size { get { return m_size; } }
 
-        public float columnCount { get { return _columns.Length * _size; } }
+        public float columnCount { get { return m_columns.Length; } }
 
-        public float rowCount { get { return _rows.Length * _size; } }
+        public float rowCount { get { return m_rows.Length; } }
+
+        public Grid()
+        {
+            m_rows = new float[0];
+            m_columns = new float[0];
+        }
 
         public Grid(int columns, int rows, float size, Vector2 origin)
         {
-            _rows = new float[rows];
-            _columns = new float[columns];
+            m_rows = new float[rows];
+            m_columns = new float[columns];
             Recalculate(columns, rows, size, origin);
         }
 
@@ -152,51 +210,75 @@ namespace HandyUtilities
         {
             columns = Mathf.Clamp(columns, 3, 512);
             rows = Mathf.Clamp(rows, 3, 512);
-            _size = size;
-            if (columns != _columns.Length)
-                System.Array.Resize(ref _columns, columns);
-            if (rows != _rows.Length)
-                System.Array.Resize(ref _rows, rows);
-            for (int i = 0; i < _rows.Length; i++)
+            m_size = size;
+            if (columns != m_columns.Length)
+                System.Array.Resize(ref m_columns, columns);
+            if (rows != m_rows.Length)
+                System.Array.Resize(ref m_rows, rows);
+            for (int i = 0; i < m_rows.Length; i++)
             {
-                _rows[i] = origin.y + i * size;
+                m_rows[i] = origin.y + i * size;
             }
-            for (int i = 0; i < _columns.Length; i++)
+            for (int i = 0; i < m_columns.Length; i++)
             {
-                _columns[i] = origin.x + i * size;
+                m_columns[i] = origin.x + i * size;
             }
         }
 
         public float GetRow(int i)
         {
-            if (i < _rows.Length)
-                return _rows[i];
+            if (i < m_rows.Length)
+                return m_rows[i];
             else return 0;
         }
 
         public float GetColumn(int i)
         {
-            if (i < _columns.Length)
-                return _columns[i];
+            if (i < m_columns.Length)
+                return m_columns[i];
             else return 0;
         }
 
         public float GetClosetRow(float row)
         {
-            System.Array.Sort(_rows, (p1, p2) => Mathf.Abs(row - p1).CompareTo(Mathf.Abs(row - p2)));
-            return _rows[0];
+        //    row -= size * .5f;
+            var xDist = float.MaxValue;
+            int closestX = -1;
+            for (int x = 0; x < m_rows.Length; x++)
+            {
+                var xd = Mathf.Abs(m_rows[x] - row);
+                if (xd < xDist)
+                {
+                    closestX = x;
+                    xDist = xd;
+                }
+            }
+            return m_rows[closestX];
         }
 
         public float GetClosetColumn(float col)
         {
-            System.Array.Sort(_columns, (p1, p2) => Mathf.Abs(col - p1).CompareTo(Mathf.Abs(col - p2)));
-            return _columns[0];
+        //    col -= size * .5f;
+            var yDist = float.MaxValue;
+            int closestY = -1;
+            for (int y = 0; y < m_columns.Length; y++)
+            {
+                var xd = Mathf.Abs(m_columns[y] - col);
+                if (xd < yDist)
+                {
+                    closestY = y;
+                    yDist = xd;
+                }
+            }
+            return m_columns[closestY];
         }
         public Vector2 GetPoint(Vector2 point)
         {
-            System.Array.Sort(_rows, (g1, g2) => Mathf.Abs(g1 - point.x).CompareTo(Mathf.Abs(g2 - point.x)));
-            System.Array.Sort(_columns, (g1, g2) => Mathf.Abs(g1 - point.y).CompareTo(Mathf.Abs(g2 - point.y)));
-            return new Vector2(_rows[0], _columns[0]);
+
+            var pos = new Vector2(GetClosetColumn(point.x), GetClosetRow(point.y));
+            pos.x += size * .5f;
+            pos.y += size * .5f;
+            return pos;
         }
     }
 
@@ -348,9 +430,12 @@ namespace HandyUtilities
     {
         #region Properties
 
-        public static bool isMouseWheelScrolling { get { return Input.GetAxis("Mouse ScrollWheel") != 0; } }
-        public static float mouseWheelDelta { get { return Input.GetAxis("Mouse ScrollWheel"); } }
+        const string MouseScrollWheel = "Mouse ScrollWheel";
+
+        public static bool isMouseWheelScrolling { get { return Input.GetAxis(MouseScrollWheel) != 0; } }
+        public static float mouseWheelDelta { get { return Input.GetAxis(MouseScrollWheel); } }
         public static bool isPointerOverGUI { get { return EventSystem.current.IsPointerOverGameObject(); } }
+        public static string relativeDataPath { get { return ConvertLoRelativePath(Application.dataPath); } }
 
         #endregion
 
@@ -376,6 +461,76 @@ namespace HandyUtilities
         #endregion Initilization
 
         #region Static Methods 
+
+
+        public static byte[] GetBytes(string base64)
+        {
+            return System.Convert.FromBase64String(base64);
+        }
+
+        public static string GetBase64(byte[] data)
+        {
+            return System.Convert.ToBase64String(data);
+        }
+
+        public static string CalculateMD5Hash(string input)
+        {
+            var md5 = System.Security.Cryptography.MD5.Create();
+
+            byte[] inputBytes = System.Text.Encoding.ASCII.GetBytes(input);
+
+            byte[] hash = md5.ComputeHash(inputBytes);
+
+            var sb = new System.Text.StringBuilder();
+
+            for (int i = 0; i < hash.Length; i++)
+            {
+                sb.Append(hash[i].ToString("x2"));
+            }
+
+            return sb.ToString();
+        }
+
+        public static void DirectoryCopy(string sourceDirName, string destDirName, bool copySubDirs)
+        {
+            // Get the subdirectories for the specified directory.
+            System.IO.DirectoryInfo dir = new System.IO.DirectoryInfo(sourceDirName);
+
+            if (!dir.Exists)
+            {
+                throw new System.IO.DirectoryNotFoundException(
+                    "Source directory does not exist or could not be found: "
+                    + sourceDirName);
+            }
+
+            System.IO.DirectoryInfo[] dirs = dir.GetDirectories();
+            // If the destination directory doesn't exist, create it.
+            if (!System.IO.Directory.Exists(destDirName))
+            {
+                System.IO.Directory.CreateDirectory(destDirName);
+            }
+
+            // Get the files in the directory and copy them to the new location.
+            System.IO.FileInfo[] files = dir.GetFiles();
+            foreach (System.IO.FileInfo file in files)
+            {
+                if(file.Extension != "meta")
+                {
+                    string temppath = System.IO.Path.Combine(destDirName, file.Name);
+                    file.CopyTo(temppath, false);
+                }
+            }
+
+            // If copying subdirectories, copy them and their contents to new location.
+            if (copySubDirs)
+            {
+                foreach (System.IO.DirectoryInfo subdir in dirs)
+                {
+                    string temppath = System.IO.Path.Combine(destDirName, subdir.Name);
+                    DirectoryCopy(subdir.FullName, temppath, copySubDirs);
+                }
+            }
+        }
 
         public static System.Type GetType(string TypeName)
         {

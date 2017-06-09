@@ -22,6 +22,8 @@ namespace HandyUtilities
                         _instance = UnityEditor.AssetDatabase.LoadAssetAtPath<T>(path);
                     }
                 }
+#else
+                 _instance = Resources.Load<T>("Resources/" + typeof(T).Name + ".asset");
 #endif
                 return _instance;
             }

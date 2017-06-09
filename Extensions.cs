@@ -7,6 +7,20 @@ namespace HandyUtilities
 {
     public static class ExtensionMethods
     {
+        #region Strings
+
+        public static string ToUpperFirst(this string s)
+        {
+            return s[0].ToString().ToUpper() + s.Substring(1);
+        }
+
+        public static string ToLowerFirst(this string s)
+        {
+            return s[0].ToString().ToLower() + s.Substring(1);
+        }
+
+        #endregion Strings
+
         #region Transform
 
         /// <summary>
@@ -122,6 +136,21 @@ namespace HandyUtilities
             targetPosition.y = targetPosition.y + (target.position.y - offset.y);
             targetPosition.z = target.position.z;
             target.position = Vector3.MoveTowards(target.position, targetPosition, speed);
+        }
+
+        public static string GetPath(this Transform t, Transform root)
+        {
+            var parent = t.parent;
+            string result = "";
+            while (parent && t != root)
+            {
+                result = "/" + result.Insert(0, t.name);
+                t = parent;
+                parent = parent.parent;
+            }
+            if (result.StartsWith("/"))
+                result = result.Remove(0, 1);
+            return result;
         }
         public static void SetScale(this Transform t, float scale)
         {
@@ -462,6 +491,7 @@ namespace HandyUtilities
         //    mesh.uv = uv;
         //    mf.SetMesh(mesh);
         //}
+
         public static void AddBone(this SkinnedMeshRenderer skin, Vector3 point)
         {
             var bones = new List<Transform>(skin.bones);
@@ -932,7 +962,7 @@ namespace HandyUtilities
         public static int BetweenCount<T>(this List<T> list, int a, int b, bool clockwise)
         {
             int result = 0;
-            a = clockwise ? list.NextIndex(a) : list.PreviousIndex(a);
+          //  a = clockwise ? list.NextIndex(a) : list.PreviousIndex(a);
             while (a != b)
             {
                 result++;
@@ -943,7 +973,7 @@ namespace HandyUtilities
         public static int BetweenCount<T>(this T[] list, int a, int b, bool clockwise)
         {
             int result = 0;
-            a = clockwise ? list.NextIndex(a) : list.PreviousIndex(a);
+          //  a = clockwise ? list.NextIndex(a) : list.PreviousIndex(a);
             while (a != b)
             {
                 result++;
@@ -1373,6 +1403,17 @@ namespace HandyUtilities
 
         #region MonoBehaviour
 
+        public static string GetScriptPath(this MonoBehaviour b)
+        {
+#if UNITY_EDITOR
+            var ms = UnityEditor.MonoScript.FromMonoBehaviour(b);
+            var scriptFilePath = UnityEditor.AssetDatabase.GetAssetPath(ms);
+            return scriptFilePath;
+#else
+             return "";
+#endif
+        }
+
         public static T FindComponentInChild<T>(this MonoBehaviour t, string name)
         {
             var child = t.transform.Find(name);
@@ -1386,6 +1427,11 @@ namespace HandyUtilities
         #endregion MonoBehaviour
 
         #region Other
+
+        public static bool Contains(this LayerMask mask, int layer)
+        {
+            return ((1 << layer) & mask) != 0;
+        }
 
         public static void RenameKey<TKey, TValue>(this IDictionary<TKey, TValue> dic, TKey fromKey, TKey toKey)
         {
@@ -1421,6 +1467,21 @@ namespace HandyUtilities
             rect.pivot = pivot;
         }
 
+        public static Vector2 GetLocalPivotPoint(this RectTransform rect, float scale = 1f)
+        {
+            return Vector3.Scale(rect.sizeDelta, rect.pivot);
+        }
+
+        public static Vector2 GetPivotPoint(this RectTransform rect, float scale = 1f)
+        {
+            return rect.position + Vector3.Scale(rect.sizeDelta * scale, rect.pivot - rect.anchorMax);
+        }
+
+        public static Vector2 GetAnchoredPivotPoint(this RectTransform rect, float scale = 1f)
+        {
+            return rect.anchoredPosition + Vector2.Scale(rect.sizeDelta * scale, rect.pivot);
+        }
+
         public static void SetAnchorFromSprite(this RectTransform rect, Sprite sprite)
         {
             var pivot = sprite.pivot;
@@ -1430,6 +1491,15 @@ namespace HandyUtilities
             rect.anchorMin = pivot;
         }
 
+        public static Vector3 GetWorldPosition(this RectTransform rect, Camera cam)
+        {
+            return cam.ScreenToWorldPoint(RectTransformUtility.WorldToScreenPoint(null, rect.position));
+        }
+
+        public static Vector3 GetWorldPosition(this RectTransform rect)
+        {
+            return Camera.main.ScreenToWorldPoint(RectTransformUtility.WorldToScreenPoint(null, rect.position));
+        }
 
         #endregion RectTransform
 
@@ -1512,6 +1582,32 @@ namespace HandyUtilities
         }
 
         #endregion Conf Joint
+
+        #region Texture 2D
+
+        public static void Fill(this Texture2D texture, int x, int y, Color32 replacementColor)
+        {
+            var target = texture.GetPixel(x, y);
+            Flood(texture, target, replacementColor, x, y, texture.width, texture.height);
+            texture.Apply();
+        }
+
+        static void Flood(this Texture2D texture, Color target, Color replacement, int x, int y, int w, int h)
+        {
+            if (x < 0 || x >= w || y < 0 || y >= h) return;
+            if (target == replacement) return;
+            var color = texture.GetPixel(x, y);
+            if (color != target) return;
+            texture.SetPixel(x, y, replacement);
+
+            Flood(texture, target, replacement, x, y - 1, w, h);
+            Flood(texture, target, replacement, x - 1, y, w, h);
+            Flood(texture, target, replacement, x + 1, y, w, h);
+            Flood(texture, target, replacement, x, y + 1, w, h);
+        }
+
+
+        #endregion Texture 2D
     }
 
 }

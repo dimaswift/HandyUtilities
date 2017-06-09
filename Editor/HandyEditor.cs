@@ -41,6 +41,58 @@ namespace HandyUtilities
             }
         }
 
+        public static void SendMessage(GameObject target, string methodName)
+        {
+            foreach (var item in target.GetComponents<Component>())
+            {
+                MethodInfo tMethod = item.GetType().GetMethod(methodName);
+                if (tMethod != null)
+                {
+                    tMethod.Invoke(item, null);
+                    break;
+                }
+            }
+           
+        }
+
+        public static string FindFolderInProject(string folderName)
+        {
+            string result;
+            FindFolderInProject(Helper.relativeDataPath, folderName, out result);
+            return result;
+        }
+
+        static bool FindFolderInProject(string rootFolder, string folderName, out string result)
+        {
+            var folders = AssetDatabase.GetSubFolders(rootFolder);
+            result = "";
+            foreach (var item in folders)
+            {
+                if (item.EndsWith("/" + folderName))
+                {
+                    result = item;
+                    return true;
+                } 
+                if(FindFolderInProject(item, folderName, out result))
+                {
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        public static void FocusOnPoint(Vector3 point, float size = 1f)
+        {
+            var s = Selection.activeGameObject;
+            var g = GameObject.CreatePrimitive(PrimitiveType.Cube);
+            Selection.activeGameObject = g;
+            g.transform.localScale = new Vector3(size, size, size);
+            g.transform.position = point;
+            SceneView.lastActiveSceneView.FrameSelected();
+            Selection.activeGameObject = s;
+            Object.DestroyImmediate(g);
+        }
+
         public static float FloatAngle(Rect rect, float value, bool showValue)
         {
             Rect knobRect = new Rect(rect.x, rect.y, rect.height, rect.height);
@@ -84,6 +136,16 @@ namespace HandyUtilities
         {
             EditorApplication.ProjectWindowItemCallback myCallback = new EditorApplication.ProjectWindowItemCallback(IconGUI);
             return myCallback;
+        }
+
+        public static void DrawTextureGUI(Rect position, Sprite sprite, Vector2 size)
+        {
+            Rect spriteRect = new Rect(sprite.rect.x / sprite.texture.width, sprite.rect.y / sprite.texture.height,
+                                       sprite.rect.width / sprite.texture.width, sprite.rect.height / sprite.texture.height);
+            Vector2 actualSize = size;
+
+            actualSize.y *= (sprite.rect.height / sprite.rect.width);
+            GUI.DrawTextureWithTexCoords(new Rect(position.x, position.y + (size.y - actualSize.y) / 2, actualSize.x, actualSize.y), sprite.texture, spriteRect);
         }
 
         static void IconGUI(string s, Rect r)
@@ -169,10 +231,10 @@ namespace HandyUtilities
         public static bool GetMouseButtonUp(int button)
         {
             var e = Event.current;
-            return e.button == button && e.type == EventType.MouseUp;
+            return e.button == button && (e.type == EventType.MouseUp || e.rawType == EventType.MouseUp);
         }
 
-        public static Vector2 mousePosition
+        public static Vector3 mousePosition
         {
             get
             {
@@ -183,6 +245,18 @@ namespace HandyUtilities
                 var pos = scene.ScreenPointToRay(mousePos).origin;
                 pos.z = 0;
                 return pos;
+            }
+        }
+
+        public static Ray mouseRay
+        {
+            get
+            {
+                if (SceneView.currentDrawingSceneView == null) return new Ray();
+                var scene = SceneView.currentDrawingSceneView.camera;
+                Vector2 mousePos = Event.current.mousePosition;
+                mousePos.y = scene.pixelHeight - mousePos.y;
+                return scene.ScreenPointToRay(mousePos);
             }
         }
 
@@ -198,7 +272,7 @@ namespace HandyUtilities
             }
         }
 
-        [MenuItem("HandyUtilities/Apply Selected Prefabs")]
+        [MenuItem("Handy Utilities/Apply Selected Prefabs")]
         public static void SaveSelectedPrefabs(MenuCommand command)
         {
             foreach (var item in Selection.gameObjects)
@@ -314,6 +388,118 @@ namespace HandyUtilities
             return props;
         }
 
+        static List<Vector3> boundsHandles = new List<Vector3>(6) { new Vector3(), new Vector3(), new Vector3(), new Vector3(), new Vector3(), new Vector3() };
+        public static int draggingBoundsHandle;
+        static Vector3 pressedMouse, pressedBoundsHandle, pressedCenter;
+
+
+        public static void DrawBounds(Bounds bounds)
+        {
+            var c = bounds.center;
+            var e = bounds.extents;
+            var p0 = new Vector3(c.x + e.x, c.y + e.y, c.z + e.z);
+            var p1 = new Vector3(c.x - e.x, c.y + e.y, c.z + e.z);
+            var p2 = new Vector3(c.x + e.x, c.y - e.y, c.z + e.z);
+            var p3 = new Vector3(c.x - e.x, c.y - e.y, c.z + e.z);
+            var p4 = new Vector3(c.x + e.x, c.y + e.y, c.z - e.z);
+            var p5 = new Vector3(c.x - e.x, c.y + e.y, c.z - e.z);
+            var p6 = new Vector3(c.x + e.x, c.y - e.y, c.z - e.z);
+            var p7 = new Vector3(c.x - e.x, c.y - e.y, c.z - e.z);
+            Handles.color = Color.blue.SetAlpha(.77f);
+
+            Handles.DrawLine(p0, p2);
+            Handles.DrawLine(p0, p4);
+            Handles.DrawLine(p0, p1);
+            Handles.DrawLine(p3, p7);
+            Handles.DrawLine(p6, p2);
+            Handles.DrawLine(p6, p4);
+            Handles.DrawLine(p3, p2);
+            Handles.DrawLine(p6, p7);
+            Handles.DrawLine(p3, p1);
+            Handles.DrawLine(p5, p7);
+            Handles.DrawLine(p5, p1);
+            Handles.DrawLine(p5, p4);
+        }
+
+        public static Bounds EditBounds(Bounds bounds, Quaternion rotation, float voxelSize = 0f)
+        {
+
+            var handle_front = new Vector3(bounds.center.x, bounds.center.y, bounds.center.z + bounds.extents.z);
+            var handle_back = new Vector3(bounds.center.x, bounds.center.y, bounds.center.z - bounds.extents.z);
+            var handle_top = new Vector3(bounds.center.x, bounds.center.y + bounds.extents.y, bounds.center.z);
+            var handle_bottom = new Vector3(bounds.center.x, bounds.center.y - bounds.extents.y, bounds.center.z);
+            var handle_left = new Vector3(bounds.center.x - bounds.extents.x, bounds.center.y, bounds.center.z);
+            var handle_right = new Vector3(bounds.center.x + bounds.extents.x, bounds.center.y, bounds.center.z);
+            var handleSize = HandleUtility.GetHandleSize(bounds.center) * .05f;
+
+            DrawBounds(bounds);
+
+            boundsHandles[0] = handle_front;
+            boundsHandles[1] = handle_back;
+            boundsHandles[2] = handle_top;
+            boundsHandles[3] = handle_bottom;
+            boundsHandles[4] = handle_left;
+            boundsHandles[5] = handle_right;
+
+            Handles.color = Color.blue.SetAlpha(.77f);
+            var mouse = mouseRay;
+            
+            for(int i = 0; i < boundsHandles.Count; i++)
+            {
+                var h = boundsHandles[i];
+                var d = (h - mouseRay.origin).magnitude;
+                bool overlaping = Helper.DistanceToLine(mouse, h) < handleSize * 2;
+                if(overlaping)
+                {
+                    if(GetMouseButtonDown(0))
+                    {
+                        draggingBoundsHandle = i;
+                        pressedMouse = mouseRay.GetPoint(d);
+                        pressedBoundsHandle = h;
+                        pressedCenter = bounds.center;
+                    }
+                }
+                Handles.CubeCap(0, h, rotation, i == draggingBoundsHandle ? handleSize * 2f : handleSize);
+            }
+
+            if (draggingBoundsHandle >= 0)
+            {
+                var h = boundsHandles[draggingBoundsHandle];
+                var d = (h - mouse.origin).magnitude;
+                var delta = mouseRay.GetPoint(d) - pressedMouse;
+                
+                h = pressedBoundsHandle + delta;
+                boundsHandles[draggingBoundsHandle] = h;
+
+                delta /= 2;
+
+                handle_front = boundsHandles[0];
+                handle_back = boundsHandles[1];
+                handle_top = boundsHandles[2];
+                handle_bottom = boundsHandles[3];
+                handle_left = boundsHandles[4];
+                handle_right = boundsHandles[5];
+
+                bounds.size = new Vector3(Mathf.Abs(handle_left.x - handle_right.x),
+                    Mathf.Abs(handle_top.y - handle_bottom.y),
+                    Mathf.Abs(handle_front.z - handle_back.z));
+
+               
+                if (draggingBoundsHandle == 0 || draggingBoundsHandle == 1)
+                    bounds.center = pressedCenter + new Vector3(0, 0, delta.z);
+                else if (draggingBoundsHandle == 2 || draggingBoundsHandle == 3)
+                    bounds.center = pressedCenter + new Vector3(0, delta.y, 0);
+                else if (draggingBoundsHandle == 4 || draggingBoundsHandle == 5)
+                    bounds.center = pressedCenter + new Vector3(delta.x, 0, 0);
+
+            }
+
+            if (GetMouseButtonUp(0))
+                draggingBoundsHandle = -1;
+
+            return bounds;
+        }
+
         public static void MakeTextureReadable(Texture2D map)
         {
             TextureImporter imp = (TextureImporter) AssetImporter.GetAtPath(AssetDatabase.GetAssetPath(map));
@@ -325,7 +511,12 @@ namespace HandyUtilities
             if (!imp.isReadable)
             {
                 imp.isReadable = true;
+#if UNITY_5_5
+                imp.textureType = TextureImporterType.Default;
+#else
                 imp.textureFormat = TextureImporterFormat.ARGB32;
+#endif
+
                 imp.mipmapEnabled = true;
                 imp.SaveAndReimport();
             }

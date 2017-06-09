@@ -4,13 +4,16 @@ using System.Collections;
 
 public class PrimitiveMeshCreator
 {
-    [MenuItem("HandyUtilities/Primitive Mesh/Create Cube")]
+    [MenuItem("Handy Utilities/Primitive Mesh/Create Cube")]
     public static void CreateCube()
     {
+        var path = EditorUtility.SaveFilePanel("Save Mesh", "Assets", "cube", "asset");
+        if (string.IsNullOrEmpty(path))
+            return;
         var cubeObj = GameObject.CreatePrimitive(PrimitiveType.Cube);
         var cubeMesh = cubeObj.GetComponent<MeshFilter>().sharedMesh;
         var mesh = CopyMesh(cubeMesh);
-        var path = EditorUtility.SaveFilePanel("Save Mesh", "Assets", "cube", "asset");
+      
         AssetDatabase.CreateAsset(mesh, HandyUtilities.Helper.ConvertLoRelativePath(path));
         Object.DestroyImmediate(cubeObj);
     }
@@ -19,19 +22,37 @@ public class PrimitiveMeshCreator
     public static void CopyScaledMesh(MenuCommand command)
     {
         var mf = command.context as MeshFilter;
+        var path = EditorUtility.SaveFilePanel("Save Mesh", AssetDatabase.GetAssetPath(mf.sharedMesh), mf.name, "asset");
+        if (string.IsNullOrEmpty(path))
+            return;
         var mesh = CopyMesh(mf.sharedMesh, mf.transform.localScale, mf.transform.parent != null ? mf.transform.localPosition : Vector3.zero);
-        var path = EditorUtility.SaveFilePanel("Save Mesh", "Assets", "cube", "asset");
+      
         AssetDatabase.CreateAsset(mesh, HandyUtilities.Helper.ConvertLoRelativePath(path));
+    }
+
+    [MenuItem("CONTEXT/MeshFilter/Create Mesh Copy")]
+    public static void CopyMesh(MenuCommand command)
+    {
+        var mf = command.context as MeshFilter;
+        var path = EditorUtility.SaveFilePanel("Save Mesh", AssetDatabase.GetAssetPath(mf.sharedMesh), mf.name, "asset");
+        if (string.IsNullOrEmpty(path))
+            return;
+        var mesh = CopyMesh(mf.sharedMesh, mf.transform.localScale, mf.transform.parent != null ? mf.transform.localPosition : Vector3.zero);
+        AssetDatabase.CreateAsset(mesh, HandyUtilities.Helper.ConvertLoRelativePath(path));
+        mf.sharedMesh = mesh;
+        EditorUtility.SetDirty(mf.gameObject);
     }
 
     [MenuItem("CONTEXT/MeshFilter/Copy And Replace Scaled Mesh")]
     public static void CopyAndReplaceScaledMesh(MenuCommand command)
     {
         var mf = command.context as MeshFilter;
+        var path = EditorUtility.SaveFilePanel("Save Mesh", AssetDatabase.GetAssetPath(mf.sharedMesh), mf.name, "asset");
+        if (string.IsNullOrEmpty(path))
+            return;
         Undo.RecordObject(mf.gameObject, "Mesh swap");
         var mesh = CopyMesh(mf.sharedMesh, mf.transform.localScale, mf.transform.parent != null ? mf.transform.localPosition : Vector3.zero);
-        var path = EditorUtility.SaveFilePanel("Save Mesh", "Assets", "cube", "asset");
-     
+      
         if(mf.transform.parent)
         {
             mf.transform.localPosition = Vector3.zero;

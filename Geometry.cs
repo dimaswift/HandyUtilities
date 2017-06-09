@@ -5,6 +5,82 @@ namespace HandyUtilities
 {
     public static class Geometry
     {
+        public static float DistanceToLine(Ray ray, Vector3 point)
+        {
+            return Vector3.Cross(ray.direction, point - ray.origin).magnitude;
+        }
+
+        public static Vector3 GetClosestPoint(List<Vector3> pointList, Vector3 targetPoint)
+        {
+            var distance = float.MaxValue;
+            Vector3 closest = targetPoint;
+            var count = pointList.Count;
+            for (int i = 0; i < count; i++)
+            {
+                var turn = pointList[i];
+                var d = (turn - targetPoint).sqrMagnitude;
+                if (d < distance)
+                {
+                    distance = d;
+                    closest = turn;
+                }
+            }
+            return closest;
+        }
+
+        public static Vector3 GetClosestPoint(Vector3[] pointList, Vector3 targetPoint)
+        {
+            var distance = float.MaxValue;
+            Vector3 closest = targetPoint;
+            var count = pointList.Length;
+            for (int i = 0; i < count; i++)
+            {
+                var turn = pointList[i];
+                var d = (turn - targetPoint).sqrMagnitude;
+                if (d < distance)
+                {
+                    distance = d;
+                    closest = turn;
+                }
+            }
+            return closest;
+        }
+
+        public static Vector2 GetClosestPoint(Vector2[] pointList, Vector2 targetPoint)
+        {
+            var distance = float.MaxValue;
+            Vector2 closest = targetPoint;
+            var count = pointList.Length;
+            for (int i = 0; i < count; i++)
+            {
+                var turn = pointList[i];
+                var d = (turn - targetPoint).sqrMagnitude;
+                if (d < distance)
+                {
+                    distance = d;
+                    closest = turn;
+                }
+            }
+            return closest;
+        }
+
+        public static Vector2 GetClosestPoint(List<Vector2> pointList, Vector2 targetPoint)
+        {
+            var distance = float.MaxValue;
+            Vector2 closest = targetPoint;
+            var count = pointList.Count;
+            for (int i = 0; i < count; i++)
+            {
+                var turn = pointList[i];
+                var d = (turn - targetPoint).sqrMagnitude;
+                if (d < distance)
+                {
+                    distance = d;
+                    closest = turn;
+                }
+            }
+            return closest;
+        }
 
         public static Vector3 RotatePointAroundPivot(Vector3 point, Vector3 pivot, Vector3 angles)
         {
@@ -849,7 +925,7 @@ namespace HandyUtilities
             return new Vector3(y, x);
         }
 
-        public static float DotProduct(Vector2 pointA, Vector2 pointB, Vector2 pointC)
+        public static float DotProduct(Vector3 pointA, Vector3 pointB, Vector3 pointC)
         {
             float AB_0 = 0;
             float AB_1 = 0;
@@ -865,18 +941,18 @@ namespace HandyUtilities
             return dot;
         }
 
-        public static float LineToPointDistance(Vector2 pointA, Vector2 pointB, Vector2 pointC, bool isSegment)
+        public static float LineToPointDistance(Vector3 pointA, Vector3 pointB, Vector3 pointC, bool isSegment)
         {
-            float dist = Cross(pointA, pointB, pointC) / Vector2.Distance(pointA, pointB);
+            float dist = Cross(pointA, pointB, pointC) / Vector3.Distance(pointA, pointB);
             if (isSegment)
             {
                 float dot1 = DotProduct(pointA, pointB, pointC);
                 if (dot1 > 0)
-                    return Vector2.Distance(pointB, pointC);
+                    return Vector3.Distance(pointB, pointC);
 
                 float dot2 = DotProduct(pointB, pointA, pointC);
                 if (dot2 > 0)
-                    return Vector2.Distance(pointA, pointC);
+                    return Vector3.Distance(pointA, pointC);
             }
             return Mathf.Abs(dist);
         }
@@ -956,7 +1032,7 @@ namespace HandyUtilities
             return (BAx * BCy - BAy * BCx);
         }
 
-        public static float Cross(Vector2 a, Vector2 b, Vector2 c)
+        public static float Cross(Vector3 a, Vector3 b, Vector3 c)
         {
             return ((b.x - a.x) * (c.y - a.y) - (b.y - a.y) * (c.x - a.x));
         }

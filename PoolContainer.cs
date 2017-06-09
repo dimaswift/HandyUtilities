@@ -4,6 +4,24 @@ namespace HandyUtilities.PoolSystem
 {
     public static class PoolContainerHelper
     {
+
+        public static void CreatePool<T, T2>(T target) where T2 : PoolContainer<T> where T : PooledObject<T>
+        {
+#if UNITY_EDITOR
+            var pool = ScriptableObject.CreateInstance<T2>();
+            var assetPath = UnityEditor.AssetDatabase.GetAssetPath(target.gameObject);
+
+            var dirPath = System.IO.Path.GetDirectoryName(assetPath);
+            assetPath = dirPath + "/" + target.name + "_pool.asset";
+            pool.prefabs = new T[] { target };
+            UnityEditor.EditorUtility.SetDirty(pool);
+            UnityEditor.AssetDatabase.CreateAsset(pool, assetPath);
+            target.pool = UnityEditor.AssetDatabase.LoadAssetAtPath<T2>(assetPath);
+            UnityEditor.EditorUtility.SetDirty(target);
+#endif
+        }
+
+
         public static SO CreateScriptableObjectAsset<SO>(string name) where SO : ScriptableObject
         {
 #if UNITY_EDITOR
@@ -16,16 +34,50 @@ namespace HandyUtilities.PoolSystem
         }
 
     }
+
     public abstract class PoolContainer<T> : SOContainer where T : PooledObject<T>
     {
         [SerializeField]
-        protected T m_prefab;
+        protected T[] m_prefabs;
+
+        [SerializeField]
+        bool m_adjustCapacity = false;
+
+        public T[] prefabs
+        {
+            get { return m_prefabs; }
+            set { m_prefabs = value; }
+        }
+
         [SerializeField]
         protected int m_size = 10;
+        [System.NonSerialized]
+        bool m_initialized = false;
+
+        System.Action onCapacityExeeded;
 
         public override void Init()
         {
-            m_pool = new Pool<T>(m_prefab, m_size);
+            if (m_initialized) return;
+            m_pool = new Pool<T>(m_prefabs, m_size, OnCapacityExceeded);
+            m_initialized = true;
+        }
+
+        public T Pick()
+        {
+            return pool.Pick();
+        }
+
+        void OnCapacityExceeded()
+        {
+            if(m_adjustCapacity)
+            {
+                pool.IncreaseCapacity(1);
+                m_size++;
+#if UNITY_EDITOR
+                UnityEditor.EditorUtility.SetDirty(this);  
+#endif
+            }
         }
 
         protected Pool<T> m_pool;
@@ -39,6 +91,14 @@ namespace HandyUtilities.PoolSystem
         Use this code to create instances of pool containers: 
         ***********************************************************************************
         
+#if UNITY_EDITOR
+        [UnityEditor.MenuItem("CONTEXT/PooledObjectType/Create Pool")]
+        static void Create(UnityEditor.MenuCommand command) 
+        {
+            PoolContainerHelper.CreatePool<PooledObjectType, PoolType>(command.context as PooledObjectType);
+        }
+#endif
+
 #if UNITY_EDITOR
     [UnityEditor.MenuItem("HandyUtilities/PoolSystem/Create Instance of Space Pool")]
     static void Create()
