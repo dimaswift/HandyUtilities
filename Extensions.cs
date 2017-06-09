@@ -1375,7 +1375,7 @@ namespace HandyUtilities
 
         public static T FindComponentInChild<T>(this MonoBehaviour t, string name)
         {
-            var child = t.transform.FindChild(name);
+            var child = t.transform.Find(name);
             if (child)
             {
                 return child.GetComponent<T>();

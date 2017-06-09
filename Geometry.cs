@@ -916,6 +916,36 @@ namespace HandyUtilities
             return true;
         }
 
+        public static bool IsConvex(List<Vector2> polygon)
+        {
+            bool got_negative = false;
+            bool got_positive = false;
+            int num_points = polygon.Count;
+            int B, C;
+            for (int A = 0; A < num_points; A++)
+            {
+                B = (A + 1) % num_points;
+                C = (B + 1) % num_points;
+
+                float cross_product =
+                    CrossProductLength(
+                        polygon[A].x, polygon[A].y,
+                        polygon[B].x, polygon[B].y,
+                        polygon[C].x, polygon[C].y);
+                if (cross_product < 0)
+                {
+                    got_negative = true;
+                }
+                else if (cross_product > 0)
+                {
+                    got_positive = true;
+                }
+                if (got_negative && got_positive) return false;
+            }
+
+            return true;
+        }
+
         public static float CrossProductLength(float Ax, float Ay, float Bx, float By, float Cx, float Cy)
         {
             float BAx = Ax - Bx;
