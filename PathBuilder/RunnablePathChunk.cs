@@ -29,7 +29,7 @@ public class RunnablePathChunk : PooledObject<RunnablePathChunk>, IPathChunk
     public override void Init()
     {
         base.Init();
-        var wp = transform.FindChild("playerWayPoints");
+        var wp = transform.Find("playerWayPoints");
         if(wp == null)
         {
             playerWayPoints = new Transform[0];

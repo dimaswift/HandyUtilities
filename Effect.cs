@@ -12,20 +12,41 @@ namespace HandyUtilities
         [System.NonSerialized]
         bool m_initialized;
 
-        ParticleSystem m_effect;
         Transform m_effectTransform;
+
+        ParticleSystem[] m_effects;
+
+        int m_effectsLength;
 
         public void Init()
         {
             if (m_initialized) return;
             m_initialized = true;
-            m_effect = Instantiate(m_effectPrefab);
-            m_effectTransform = m_effect.transform;
+            var effect = Instantiate(m_effectPrefab);
+            m_effects = effect.GetComponentsInChildren<ParticleSystem>(true);
+            m_effectTransform = effect.transform;
+            m_effectsLength = m_effects.Length;
+        }
+
+        public void Play()
+        {
+            if (!m_initialized)
+                Init();
+            for (int i = 0; i < m_effectsLength; i++)
+            {
+                m_effects[i].Play(false);
+            }
         }
 
         public void Play(Vector3 position)
         {
-            Play(position, Vector3.zero);
+            if (!m_initialized)
+                Init();
+            m_effectTransform.position = position;
+            for (int i = 0; i < m_effectsLength; i++)
+            {
+                m_effects[i].Play(false);
+            }
         }
 
         public void Play(Vector3 position, Vector3 euler)
@@ -34,7 +55,10 @@ namespace HandyUtilities
                 Init();
             m_effectTransform.position = position;
             m_effectTransform.eulerAngles = euler;
-            m_effect.Play();
+            for (int i = 0; i < m_effectsLength; i++)
+            {
+                m_effects[i].Play(false);
+            }
         }
     }
 

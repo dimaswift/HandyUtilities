@@ -94,20 +94,4 @@ namespace HandyUtilities
         }
     }
 
-    [System.Serializable]
-    public class Scene
-    {
-        public List<CameraMovement2D.CameraState> states = new List<CameraMovement2D.CameraState>();
-        public void AddState(CameraMovement2D.CameraState state)
-        {
-            states.Add(state);
-        }
-        public void Serialize(string path)
-        {
-            var json = JsonUtility.ToJson(this, true);
-            var wr = System.IO.File.CreateText(path);
-            wr.Write(json);
-            wr.Close();
-        }
-    }
 }

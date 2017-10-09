@@ -932,6 +932,18 @@ namespace HandyUtilities
             }
             return index > 0 ? index - 1 : list.Count - 1;
         }
+
+        public static List<T> ToList<T>(this T[] array)
+        {
+            var length = array.Length;
+            var list = new List<T>(length);
+            for (int i = 0; i < length; i++)
+            {
+                list.Add(array[i]);
+            }
+            return list;
+        }
+
         public static int NextIndex<T>(this List<T> list, int index, int offset = 0)
         {
             while (offset > 0)
@@ -1608,6 +1620,192 @@ namespace HandyUtilities
 
 
         #endregion Texture 2D
+
+        #region Configurable Joint
+
+        public static void LockAll(this ConfigurableJoint j)
+        {
+            j.xMotion = ConfigurableJointMotion.Locked;
+            j.yMotion = ConfigurableJointMotion.Locked;
+            j.zMotion = ConfigurableJointMotion.Locked;
+            j.angularXMotion = ConfigurableJointMotion.Locked;
+            j.angularYMotion = ConfigurableJointMotion.Locked;
+            j.angularZMotion = ConfigurableJointMotion.Locked;
+        }
+
+        public static void UnlockAll(this ConfigurableJoint j)
+        {
+            j.xMotion = ConfigurableJointMotion.Free;
+            j.yMotion = ConfigurableJointMotion.Free;
+            j.zMotion = ConfigurableJointMotion.Free;
+            j.angularXMotion = ConfigurableJointMotion.Free;
+            j.angularYMotion = ConfigurableJointMotion.Free;
+            j.angularZMotion = ConfigurableJointMotion.Free;
+        }
+
+        public static ConfigurableJoint ResetLocked(this ConfigurableJoint j)
+        {
+            var connected = j.connectedBody;
+            var a = j.axis;
+            var ca = j.connectedAnchor;
+            var e = j.enableCollision;
+            var ep = j.enablePreprocessing;
+
+            var g = j.gameObject;
+
+            Object.Destroy(j);
+
+            j = g.AddComponent<ConfigurableJoint>();
+            j.connectedBody = connected;
+            j.axis = a;
+            j.connectedAnchor = ca;
+            j.enableCollision = e;
+            j.enablePreprocessing = ep;
+            j.LockAll();
+          
+            return j;
+        }
+
+        public static bool IsLocked(this ConfigurableJoint j)
+        {
+            return j.xMotion == ConfigurableJointMotion.Locked
+                && j.yMotion == ConfigurableJointMotion.Locked
+                && j.zMotion == ConfigurableJointMotion.Locked
+                && j.angularXMotion == ConfigurableJointMotion.Locked
+                && j.angularYMotion == ConfigurableJointMotion.Locked
+                && j.angularZMotion == ConfigurableJointMotion.Locked;
+        }
+
+        public static ConfigurableJoint Reset(this ConfigurableJoint j)
+        {
+            var connectedBody = j.connectedBody;
+            var angularXDrive = j.angularXDrive;
+            var angularXLimitSpring = j.angularXLimitSpring;
+            var angularXMotion = j.angularXMotion;
+            var angularYLimit = j.angularYLimit;
+            var angularYMotion = j.angularYMotion;
+            var angularYZDrive = j.angularYZDrive;
+            var angularYZLimitSpring = j.angularYZLimitSpring;
+            var angularZLimit = j.angularZLimit;
+            var angularZMotion = j.angularZMotion;
+            var axis = j.axis;
+            var anchor = j.anchor;
+            var connectedAnchor = j.connectedAnchor;
+            var breakForce = j.breakForce;
+            var breakTorque = j.breakTorque;
+            var configuredInWorldSpace = j.configuredInWorldSpace;
+            var autoConfigureConnectedAnchor = j.autoConfigureConnectedAnchor;
+            var connectedMassScale = j.connectedMassScale;
+            var enableCollision = j.enableCollision;
+            var enablePreprocessing = j.enablePreprocessing;
+            var highAngularXLimit = j.highAngularXLimit;
+            var linearLimit = j.linearLimit;
+            var linearLimitSpring = j.linearLimitSpring;
+            var lowAngularXLimit = j.lowAngularXLimit;
+            var massScale = j.massScale;
+            var projectionAngle = j.projectionAngle;
+            var projectionDistance = j.projectionDistance;
+            var projectionMode = j.projectionMode;
+            var rotationDriveMode = j.rotationDriveMode;
+            var secondaryAxis = j.secondaryAxis;
+            var slerpDrive = j.slerpDrive;
+            var swapBodies = j.swapBodies;
+            var targetAngularVelocity = j.targetAngularVelocity;
+            var targetPosition = j.targetPosition;
+            var targetRotation = j.targetRotation;
+            var targetVelocity = j.targetVelocity;
+            var xDrive = j.xDrive;
+            var xMotion = j.xMotion;
+            var yDrive = j.yDrive;
+            var yMotion = j.yMotion;
+            var zDrive = j.zDrive;
+            var zMotion = j.zMotion;
+
+            var g = j.gameObject;
+
+            Object.Destroy(j);
+          
+            j = g.AddComponent<ConfigurableJoint>();
+            j.autoConfigureConnectedAnchor = autoConfigureConnectedAnchor;
+            j.anchor = anchor;
+            j.connectedBody = connectedBody;
+            j.angularXDrive = angularXDrive;
+            j.angularXLimitSpring = angularXLimitSpring;
+            j.angularXMotion = angularXMotion;
+            j.angularYLimit = angularYLimit;
+            j.angularYMotion = angularYMotion;
+            j.angularYZDrive = angularYZDrive;
+            j.angularYZLimitSpring = angularYZLimitSpring;
+            j.angularZLimit = angularZLimit;
+            j.angularZMotion = angularZMotion;
+            j.axis = axis;
+            j.breakForce = breakForce;
+            j.breakTorque = breakTorque;
+            j.configuredInWorldSpace = configuredInWorldSpace;
+            j.connectedAnchor = connectedAnchor;
+            j.connectedMassScale = connectedMassScale;
+            j.enableCollision = enableCollision;
+            j.enablePreprocessing = enablePreprocessing;
+            j.highAngularXLimit = highAngularXLimit;
+            j.linearLimit = linearLimit;
+            j.linearLimitSpring = linearLimitSpring;
+            j.lowAngularXLimit = lowAngularXLimit;
+            j.massScale = massScale;
+            j.projectionAngle = projectionAngle;
+            j.projectionDistance = projectionDistance;
+            j.projectionMode = projectionMode;
+            j.rotationDriveMode = rotationDriveMode;
+            j.secondaryAxis = secondaryAxis;
+            j.slerpDrive = slerpDrive;
+            j.swapBodies = swapBodies;
+            j.targetAngularVelocity = targetAngularVelocity;
+            j.targetPosition = targetPosition;
+            j.targetRotation = targetRotation;
+            j.targetVelocity = targetVelocity;
+            j.xDrive = xDrive;
+            j.xMotion = xMotion;
+            j.yDrive = yDrive;
+            j.yMotion = yMotion;
+            j.zDrive = zDrive;
+            j.zMotion = zMotion;
+            return j;
+        }
+
+        #endregion Configurable Joint
+
+        #region Animation Curves
+
+        public static string ToCodeString(this Keyframe k)
+        {
+            return string.Format("new Keyframe() {{ time = {4}f, value = {0}f, inTangent = {1}f,  outTangent = {2}f, tangentMode = {3} }}", k.value, k.inTangent, k.outTangent, k.tangentMode, k.time);
+        }
+
+        public static string ToCodeString(this Keyframe[] keys, string indent = "")
+        {
+            var s = "";
+            foreach (var k in keys)
+            {
+                s += indent + k.ToCodeString() + ",";
+                s += '\n';
+            }
+            s = s.Remove(s.Length - 1, 1);
+            return s;
+        }
+
+        public static string ToCodeString(this AnimationCurve curve)
+        {
+            return @"public AnimationCurve curve = new AnimationCurve()
+{
+    keys = new Keyframe[] 
+    {
+" + curve.keys.ToCodeString("        ") +
+    @"
+    }
+};";
+        }
+
+        #endregion Animation Curves
+
     }
 
 }
