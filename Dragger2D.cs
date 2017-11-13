@@ -50,7 +50,7 @@ public class Dragger2D : MonoBehaviour
     {
         if (dragging)
         {
-            var mouse = Camera.main.ScreenToWorldPoint(Input.mousePosition);
+            var mouse = GetMousePos();
 
             var pos = mouse;
             pos.x = _dragConstraints != RigidbodyConstraints2D.FreezePositionX ? pressedTarget.x + (mouse.x - pressedMouse.x) : draggedTransform.position.x;
@@ -104,6 +104,15 @@ public class Dragger2D : MonoBehaviour
         }
     }
 
+    Vector3 GetMousePos()
+    {
+        var plane = new Plane(-Vector3.forward, Vector3.zero);
+        var ray = Camera.main.ScreenPointToRay(Input.mousePosition);
+        float d = 0;
+        plane.Raycast(ray, out d);
+        return ray.GetPoint(d);
+    }
+
     public void WaitForHook()
     {
         if (Input.GetMouseButtonUp(_mouseButton))
@@ -114,7 +123,7 @@ public class Dragger2D : MonoBehaviour
 
         if (Input.GetMouseButtonDown(_mouseButton))
         {
-            var mouse = Camera.main.ScreenToWorldPoint(Input.mousePosition);
+            var mouse = GetMousePos();
             if (_hookType == HookType.ByCollider)
             {
                 var overlap = Physics2D.OverlapPointAll(mouse, _layerMask);
